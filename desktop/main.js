@@ -10,7 +10,7 @@ const createWindow = () => {
     })
 
     // Load the built React app
-    win.loadFile(path.join(__dirname, '../cx-web/build/index.html'));
+    win.loadFile(path.join(__dirname, '../web/build/index.html'));
     win.webContents.openDevTools();
 
 }
