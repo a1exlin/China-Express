@@ -61,7 +61,9 @@ export default function LunchMenu() {
           padding: '24px',
           borderRadius: '8px',
           boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          color: 'black'
+          color: 'black',
+          maxHeight: '80vh',         // Limit height
+          overflowY: 'auto',         // Scroll inside box
         }}
       >
         <h2 style={{ textAlign: 'center', marginBottom: '16px' }}>Lunch Specials</h2>
