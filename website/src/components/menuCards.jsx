@@ -21,6 +21,7 @@ const styles = {
     cursor: "pointer",
   },
   imageBox: {
+    position: "relative",
     flexShrink: 0,
     width: "100px",
     height: "100px",
@@ -31,11 +32,15 @@ const styles = {
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
   },
   image: {
-    width: "100%",
-    height: "100%",
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    width: "93%",
+    height: "93%",
+    transform: "translate(-50%, -50%)",
     objectFit: "cover",
     borderRadius: "14px",
-    border: "2px solid #fff7ed",
+    border: "none",
   },
   contentBox: {
     display: "flex",
@@ -71,6 +76,16 @@ const styles = {
     padding: "12px 24px",
     gap: "12px",
   },
+  subMenuCard: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "20px",
+    padding: "20px 24px",
+    cursor: "pointer",
+    transform: "scale(1)",
+    transition: "transform 0.05s ease-in-out",
+  },
   subItem: {
     fontSize: "16px",
     fontWeight: "600",
@@ -80,7 +95,14 @@ const styles = {
   },
 };
 
-export function SubMenuCard({ image, title, description, onClick, children, expandable = false }) {
+export function SubMenuCard({
+  image,
+  title,
+  description,
+  onClick,
+  children,
+  expandable = false,
+}) {
   const [open, setOpen] = useState(false);
   const [height, setHeight] = useState("0px");
   const [visible, setVisible] = useState(false);
