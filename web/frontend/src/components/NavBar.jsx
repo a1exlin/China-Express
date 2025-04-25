@@ -30,39 +30,63 @@ function NavBar() {
               <div className="menu-dropdown">
                 <button
                   className="navbar-button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    navigate("/specials");
-                  }}
+                  onClick={() => navigate("/specials")}
                 >
                   Specials
                 </button>
                 <button
                   className="navbar-button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    navigate("/appetizers");
-                  }}
+                  onClick={() => navigate("/appetizers")}
                 >
                   Appetizers
                 </button>
                 <button
                   className="navbar-button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    navigate("/lunch_menu");
-                  }}
+                  onClick={() => navigate("/soups")}
+                >
+                  Soups
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => navigate("/lunch_menu")}
                 >
                   Lunch
                 </button>
                 <button
                   className="navbar-button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    navigate("/dinner_menu");
-                  }}
+                  onClick={() => navigate("/dinner_menu")}
                 >
                   Dinner
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => navigate("/side_orders")}
+                >
+                  Side Orders
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => navigate("/beef_dishes")}
+                >
+                  Beef Dishes
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => navigate("/chicken_dishes")}
+                >
+                  Chicken Dishes
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => navigate("/vegetable_dishes")}
+                >
+                  Vegetable Dishes
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => navigate("/seafood_dishes")}
+                >
+                  Seafood Dishes
                 </button>
               </div>
             )}
