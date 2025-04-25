@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../css/NavBar.css";
+import "../css/navBar.css";
 import logo from "../image/ChinaExpressLogo.png";
 
 function NavBar() {
@@ -22,7 +22,7 @@ function NavBar() {
             onMouseLeave={() => setMenuOpen(false)}
           >
             {" "}
-            <button className="navbar-button">Menu</button>
+            <button className="navbar-button" onClick={() => navigate("/menu")}>Menu</button>
             {/* Dropdown items */}
             {menuOpen && (
               <div className="menu-dropdown">
