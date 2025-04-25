@@ -9,8 +9,6 @@ function NavBar() {
 
   return (
     <div>
-      <div className="NavBarComp" style={{ height: "50px" }}></div>
-
       <div className="navbar-wrapper">
         <div className="navbar-inner">
           <button className="navbar-button" onClick={() => navigate("/home")}>
@@ -102,6 +100,8 @@ function NavBar() {
           </div>
         </div>
       </div>
+      <div className="NavBarComp" style={{ height: "60px" }}></div>
+
     </div>
   );
 }
