@@ -1,53 +1,25 @@
 import React, { useState } from 'react';
 
-const dinnerRaw = [
-  ["D1. Chicken w. Cashew Nuts", 10.70, "Chicken, cashew, and veggies in brown sauce."],
-  ["D2. Chicken w. Pepper & Onion", 10.70, "Sautéed chicken with bell pepper and onions."],
-  ["D3. Chicken w. Broccoli", 10.70],
-  ["D4. Moo Goo Gai Pan", 10.70],
-  ["D5. Beef w. Broccoli", 11.25],
-  ["D6. Pepper Steak w. Onion", 11.25],
-  ["D7. Shrimp w. Broccoli (8 pcs)", 11.50],
-  ["D8. Shrimp w. Cashew Nuts (8 pcs)", 11.50],
-  ["D9. Shrimp w. Vegetable (8 pcs)", 11.50],
-  ["D10. Shrimp w. Lobster Sauce (8 pcs)", 11.50],
-  ["D11. Sweet & Sour Chicken", 10.70],
-  ["D12. Chicken or Pork Chow Mein", 10.70],
-  ["D13. Shrimp Chow Mein", 11.50],
-  ["D14. Chicken or Pork Lo Mein", 10.70],
-  ["D15. Beef or Shrimp Lo Mein", 11.50],
-  ["D16. Mongolian Beef", 11.25],
-  ["D17. Roast Pork w. Broccoli", 10.70],
-  ["D18. Roast Pork w. Vegetable", 10.70],
-  ["D19. Sesame Chicken", 10.80],
-  ["D20. Chicken w. Snow Pea Pods", 10.70],
-  ["D21. Shrimp w. Snow Pea Pods (8 pcs)", 11.50],
-  ["D22. Chicken w. Vegetable", 10.70],
-  ["D23. Kung Po Chicken", 10.70],
-  ["D24. Chicken w. Garlic Sauce", 10.70],
-  ["D25. Chicken, Szechuan Style", 10.70],
-  ["D26. Shrimp w. Garlic Sauce (8 pcs)", 11.50],
-  ["D27. Roast Pork w. Garlic Sauce", 10.70],
-  ["D28. General Tso's Chicken", 10.80],
-  ["D29. Orange Chicken", 10.80],
-  ["D30. Curry Chicken", 10.70],
-  ["D31. Beef, Hunan Style", 11.25],
-  ["D32. Shrimp, Hunan Style (8 pcs)", 11.50],
-  ["D33. Chicken, Hunan Style", 10.70],
-  ["D34. Kung Po Shrimp (8 pcs)", 11.50],
-  ["D35. Mixed Vegetables", 9.60],
-  ["D36. Tofu w. Vegetable", 10.00],
-  ["D37. Broccoli w. Garlic Sauce", 9.60],
-  ["D38. Tofu, Hunan Style", 10.00],
+const beefItems = [
+  ["16. Beef w. Broccoli", 14.70],
+  ["17. Mongolian Beef", 14.70],
+  ["18. Beef w. Snow Peas", 14.70],
+  ["19. Kung Po Beef", 14.70],
+  ["20. Beef w. Garlic Sauce", 14.70],
+  ["21. Beef, Szechuan Style", 14.70],
+  ["22. Beef, Hunan Style", 14.70],
+  ["23. Curry Beef", 14.70],
+  ["24. Beef w. Mixed Vegetables", 14.70],
+  ["25. Pepper Steak w. Onion", 14.70],
 ];
 
-const dinnerItems = dinnerRaw.map(([name, price, description]) => ({
+const formattedBeef = beefItems.map(([name, price]) => ({
   name,
   price: `$${price.toFixed(2)}`,
-  description: description || "A delicious dinner special from our chef.",
+  description: "A savory beef entrée served with rice.",
 }));
 
-function DinnerMenu() {
+function BeefMenu() {
   const [hoverIndex, setHoverIndex] = useState(null);
 
   return (
@@ -74,7 +46,7 @@ function DinnerMenu() {
         }}
       >
         <h2 style={{ textAlign: 'center', fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
-          Dinner Specials
+          Beef Dishes
         </h2>
         <div
           style={{
@@ -85,10 +57,24 @@ function DinnerMenu() {
           }}
         />
         <p style={{ fontSize: '0.95rem', textAlign: 'center', marginBottom: '20px' }}>
-          Served with Spring Roll & Jasmine Fried Rice or Jasmine Steamed Rice (Available All Day)
+          (w. Jasmine Steamed White Rice or Jasmine Fried Rice)
         </p>
 
-        {dinnerItems.map((item, index) => {
+        {/* Price label */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            paddingBottom: '6px',
+            fontWeight: 'bold',
+            color: '#444',
+          }}
+        >
+          <span></span>
+          <span style={{ minWidth: '60px', textAlign: 'right' }}>Lg.</span>
+        </div>
+
+        {formattedBeef.map((item, index) => {
           const [itemCode, ...rest] = item.name.split(' ');
           const itemName = rest.join(' ');
           return (
@@ -119,13 +105,7 @@ function DinnerMenu() {
               </div>
 
               {hoverIndex === index && (
-                <p
-                  style={{
-                    marginTop: '6px',
-                    fontSize: '0.85rem',
-                    color: '#555',
-                  }}
-                >
+                <p style={{ marginTop: '6px', fontSize: '0.85rem', color: '#555' }}>
                   {item.description}
                 </p>
               )}
@@ -137,4 +117,4 @@ function DinnerMenu() {
   );
 }
 
-export default DinnerMenu;
+export default BeefMenu;
