@@ -86,6 +86,12 @@ function NavBar() {
                 >
                   Seafood Dishes
                 </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => navigate("/friedrice_dishes")}
+                >
+                  Fried Dishes
+                </button>
               </div>
             )}
           </div>

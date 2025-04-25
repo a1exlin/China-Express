@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 
-const beefItems = [
-    ["16. Beef w. Broccoli", 14.70],
-    ["17. Mongolian Beef", 14.70],
-    ["18. Beef w. Snow Peas", 14.70],
-    ["19. Kung Po Beef", 14.70],
-    ["20. Beef w. Garlic Sauce", 14.70],
-    ["21. Beef, Szechuan Style", 14.70],
-    ["22. Beef, Hunan Style", 14.70],
-    ["23. Curry Beef", 14.70],
-    ["24. Beef w. Mixed Vegetables", 14.70],
-    ["25. Pepper Steak w. Onion", 14.70],
+const friedRiceItems = [
+    ["54. Vegetable Fried Rice", 7.75, 9.95],
+    ["55. Egg Fried Rice", 7.45, 8.95],
+    ["56. Roast Pork Fried Rice", 8.40, 10.45],
+    ["57. Chicken Fried Rice", 8.40, 10.45],
+    ["58. Beef Fried Rice", 8.45, 11.15],
+    ["59. Shrimp Fried Rice", 8.45, 11.35],
+    ["60. House Special Fried Rice", 8.45, 11.45, "chicken, shrimp & pork"],
 ];
 
-const formattedBeef = beefItems.map(([name, price]) => ({
+const formattedFriedRice = friedRiceItems.map(([name, sm, lg, description]) => ({
     name,
-    price: `$${price.toFixed(2)}`,
-    description: "A savory beef entrée served with rice.",
+    small: `$${sm.toFixed(2)}`,
+    large: `$${lg.toFixed(2)}`,
+    description: description || "Served with Jasmine Steamed White Rice or Jasmine Fried Rice.",
 }));
 
-function BeefMenu() {
+function FriedRiceMenu() {
     const [hoverIndex, setHoverIndex] = useState(null);
 
     return (
@@ -27,9 +25,10 @@ function BeefMenu() {
             style={{
                 display: 'flex',
                 justifyContent: 'center',
-                padding: '40px 20px',
+                padding: '16px 10px',
                 backgroundColor: '#fff',
-                minHeight: '100vh',
+                minHeight: 'auto',
+                height: '100%',
             }}
         >
             <div
@@ -37,46 +36,56 @@ function BeefMenu() {
                     maxWidth: '700px',
                     width: '100%',
                     backgroundColor: '#fefefe',
-                    padding: '24px',
+                    padding: '16px',
                     borderRadius: '8px',
                     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
                     color: '#000',
-                    maxHeight: '80vh',
-                    overflowY: 'auto',
                 }}
             >
-                <h2 style={{ textAlign: 'center', fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '4px' }}>
-                    Beef Dishes
+                <h2
+                    style={{
+                        textAlign: 'center',
+                        fontSize: '1.8rem',
+                        fontWeight: 'bold',
+                        marginBottom: '4px',
+                    }}
+                >
+                    Fried Rice
                 </h2>
                 <div
                     style={{
                         height: '3px',
                         backgroundColor: '#cc0000',
                         width: '100%',
-                        marginBottom: '16px',
+                        marginBottom: '12px',
                     }}
                 />
-                <p style={{ fontSize: '0.95rem', textAlign: 'center', marginBottom: '20px' }}>
+                <p style={{ fontSize: '0.95rem', textAlign: 'center', marginBottom: '16px' }}>
                     (w. Jasmine Steamed White Rice or Jasmine Fried Rice)
                 </p>
 
-                {/* Price label */}
+                {/* Column labels */}
                 <div
                     style={{
                         display: 'flex',
                         justifyContent: 'space-between',
-                        paddingBottom: '6px',
                         fontWeight: 'bold',
                         color: '#444',
+                        paddingBottom: '6px',
+                        fontSize: '0.95rem',
                     }}
                 >
                     <span></span>
-                    <span style={{ minWidth: '60px', textAlign: 'right' }}>Lg.</span>
+                    <span style={{ display: 'flex', gap: '20px', minWidth: '120px', justifyContent: 'flex-end' }}>
+                        <span>Sm.</span>
+                        <span>Lg.</span>
+                    </span>
                 </div>
 
-                {formattedBeef.map((item, index) => {
+                {formattedFriedRice.map((item, index) => {
                     const [itemCode, ...rest] = item.name.split(' ');
                     const itemName = rest.join(' ');
+
                     return (
                         <div
                             key={index}
@@ -94,14 +103,17 @@ function BeefMenu() {
                                     display: 'flex',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    gap: '12px',
+                                    flexWrap: 'wrap',
+                                    gap: '10px',
                                 }}
                             >
                                 <span style={{ flexGrow: 1 }}>
-                                    <span style={{ color: '#cc0000', fontWeight: '600' }}>{itemCode}</span>{' '}
-                                    {itemName}
+                                    <span style={{ color: '#cc0000', fontWeight: 600 }}>{itemCode}</span> {itemName}
                                 </span>
-                                <span style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{item.price}</span>
+                                <span style={{ display: 'flex', gap: '20px', minWidth: '120px', justifyContent: 'flex-end' }}>
+                                    <span>{item.small}</span>
+                                    <span>{item.large}</span>
+                                </span>
                             </div>
 
                             {hoverIndex === index && (
@@ -117,4 +129,4 @@ function BeefMenu() {
     );
 }
 
-export default BeefMenu;
+export default FriedRiceMenu;
