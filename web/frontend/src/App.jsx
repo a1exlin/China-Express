@@ -1,16 +1,16 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Home from './components/home';
-import DinnerMenu from './components/dinner';
-import LunchMenu from './components/lunch';
-import NavBar from './components/NavBar';
-import Order from './components/order';
-import SpecialsMenu from './components/specials';
-import AppetizersMenu from './components/appetizers';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Home from "./components/home";
+import DinnerMenu from "./components/dinner";
+import LunchMenu from "./components/lunch";
+import NavBar from "./components/NavBar";
+import Order from "./components/order";
+import SpecialsMenu from "./components/specials";
+import AppetizersMenu from "./components/appetizers";
 
 function App() {
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'white' }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "white" }}>
       <BrowserRouter>
         <Routes>
           <Route path="*" element={<Navigate to="/home" />} />
@@ -71,8 +71,6 @@ function App() {
         </Routes>
       </BrowserRouter>
     </div>
-
-
   );
 }
 
