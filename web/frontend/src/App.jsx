@@ -13,6 +13,12 @@ import BeefMenu from "./components/beef";
 import ChickenMenu from "./components/chicken";
 import VegetableMenu from "./components/vegetable";
 import SeafoodMenu from "./components/seafood";
+import FriedRiceMenu from "./components/friedrice";
+import EggFooYoungMenu from "./components/egg";
+import ChowMeiFunMenu from "./components/meifun";
+import RoastPorkMenu from "./components/pork";
+import DietDishesMenu from "./components/diet";
+import ChefSpecialMenu from "./components/chefspecial";
 
 function App() {
   return (
@@ -128,6 +134,61 @@ function App() {
               </div>
             }
           />
+           <Route
+            path="/fried-rice_dishes"
+            element={
+              <div>
+                <NavBar />
+                <FriedRiceMenu />
+              </div>
+            }
+          />
+               <Route
+            path="/egg-fu-young_dishes"
+            element={
+              <div>
+                <NavBar />
+                <EggFooYoungMenu />
+              </div>
+            }
+          />
+              <Route
+            path="/chow-mei-fun_dishes"
+            element={
+              <div>
+                <NavBar />
+                <ChowMeiFunMenu />
+              </div>
+            }
+          />
+           <Route
+            path="/roastpork_dishes"
+            element={
+              <div>
+                <NavBar />
+                <RoastPorkMenu />
+              </div>
+            }
+          />
+          <Route
+            path="/diet_dishes"
+            element={
+              <div>
+                <NavBar />
+                <DietDishesMenu />
+              </div>
+            }
+          />
+          <Route
+            path="/chef_special"
+            element={
+              <div>
+                <NavBar />
+                <ChefSpecialMenu />
+              </div>
+            }
+          />
+          
         </Routes>
       </BrowserRouter>
     </div>
