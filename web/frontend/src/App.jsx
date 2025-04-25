@@ -7,6 +7,13 @@ import NavBar from './components/NavBar';
 import Order from './components/order';
 import SpecialsMenu from './components/specials';
 import AppetizersMenu from './components/appetizers';
+import SoupMenu from './components/soups';
+import SideOrders from './components/sides';
+import BeefMenu from './components/beef';
+import ChickenMenu from './components/chicken';
+import VegetableMenu from './components/vegetable';
+import SeafoodMenu from './components/seafood';
+
 
 function App() {
   return (
@@ -68,7 +75,62 @@ function App() {
               </div>
             }
           />
+           <Route
+            path="/soups"
+            element={
+              <div>
+                <NavBar />
+                <SoupMenu />
+              </div>
+            }
+          />
+           <Route
+            path="/side_orders"
+            element={
+              <div>
+                <NavBar />
+                <SideOrders />
+              </div>
+            }
+          />
+             <Route
+            path="/beef_dishes"
+            element={
+              <div>
+                <NavBar />
+                <BeefMenu />
+              </div>
+            }
+          />
+            <Route
+            path="/chicken_dishes"
+            element={
+              <div>
+                <NavBar />
+                <ChickenMenu />
+              </div>
+            }
+          />
+              <Route
+            path="/vegetable_dishes"
+            element={
+              <div>
+                <NavBar />
+                <VegetableMenu />
+              </div>
+            }
+          />
+           <Route
+            path="/seafood_dishes"
+            element={
+              <div>
+                <NavBar />
+                <SeafoodMenu />
+              </div>
+            }
+          />
         </Routes>
+      
       </BrowserRouter>
     </div>
 

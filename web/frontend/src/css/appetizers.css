@@ -6,6 +6,7 @@
     border-radius: 10px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
     font-family: 'Segoe UI', sans-serif;
+    
   }
   
   .modern-menu h2 {
@@ -51,8 +52,9 @@
   .size-price {
     margin-left: 4px;
     font-weight: normal;
-    color: #666;
+    color: #222;
     white-space: nowrap;
+    font-weight: bold;
   }
   
   /* Responsive tweaks */
