@@ -1,8 +1,8 @@
 import React from "react";
 import '../css/order.css'
 
-function Order(){
-    return(
+function Order() {
+    return (
         <div className="order">
             Order Page
         </div>
