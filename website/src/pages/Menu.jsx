@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import MenuItems from "../components/MenuItems";
+import React from "react";
+import MenuItems from "../components/menu/MenuItems";
 
-export default function Menu() {
-
+export default function Menu({ addToCart }) {
   return (
     <div className="menu">
-      <MenuItems/>
+      <MenuItems addToCart={addToCart} />
     </div>
   );
 }

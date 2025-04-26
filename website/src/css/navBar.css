@@ -70,6 +70,8 @@
 .menu-dropdown .navbar-button:hover {
   background-color: #d48806cc;
   border-radius: 10px;
+  transition: background-color 150ms;
+
 }
 
 
@@ -88,11 +90,10 @@
 }
 
 .order-button {
-  background-color: #c34428;
+  color: #c34428;
   border-radius: 4px;
   padding: 6px 12px;
   font-weight: bold;
-  color: white;
 }
 
 @media (max-width: 768px) {

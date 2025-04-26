@@ -87,7 +87,13 @@
     color: #666;
     font-size: 0.9rem;
   }
-  
+  .add-cart {
+    margin: 2%;
+  }
+  .add-cart {
+    color: #b33a24;
+    cursor: pointer;
+  }
   .modal-subsections {
     margin-top: 24px;
   }
