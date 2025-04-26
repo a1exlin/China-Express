@@ -4,10 +4,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // Pages
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
+import CompleteCheckout from "./pages/CompleteCheckout";
+
 
 // Components
 import NavBar from "./components/navBar";
-import CartPanel from "./pages/CartPanel";
+import CartPanel from "./components/CartPanel";
 
 function App() {
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);
@@ -24,25 +26,30 @@ function App() {
   const addToCart = (item) => {
     setCartItems((prev) => [...prev, item]);
   };
-
-  const removeFromCart = (index) => {
+  const updateQuantity = (index, newQty) => {
     const updated = [...cartItems];
-    updated.splice(index, 1);
+    if (newQty <= 0) {
+      updated.splice(index, 1); // ❗ Remove item if qty goes to 0
+    } else {
+      updated[index].quantity = newQty;
+    }
     setCartItems(updated);
-  };
-
-  const duplicateItem = (index) => {
-    const duplicated = { ...cartItems[index] };
-    setCartItems((prev) => [...prev, duplicated]);
+    localStorage.setItem("cart", JSON.stringify(updated));
   };
 
   const handleCheckout = () => {
-    console.log("Proceed to checkout:", cartItems);
+    onClose();
     // Redirect to payment page, or open payment modal here later
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "white", position: "relative" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "white",
+        position: "relative",
+      }}
+    >
       <BrowserRouter>
         <NavBar setCheckoutOpen={setCheckoutOpen} />
 
@@ -50,17 +57,18 @@ function App() {
           <Route path="*" element={<Navigate to="/home" />} />
           <Route path="/home" element={<Home />} />
           <Route path="/menu" element={<Menu addToCart={addToCart} />} />
-        </Routes>
-      </BrowserRouter>
+          <Route path="/completeCheckout" element={<CompleteCheckout/>} />
 
-      <CartPanel
-        isOpen={isCheckoutOpen}
-        onClose={() => setCheckoutOpen(false)}
-        cartItems={cartItems}
-        removeFromCart={removeFromCart}
-        duplicateItem={duplicateItem}
-        onCheckout={handleCheckout}
-      />
+        </Routes>
+
+        <CartPanel
+          isOpen={isCheckoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          cartItems={cartItems}
+          updateQuantity={updateQuantity}
+          onCheckout={handleCheckout}
+        />
+      </BrowserRouter>
     </div>
   );
 }

@@ -1,16 +1,20 @@
 import React from "react";
 import { motion } from "framer-motion";
 import "../css/checkoutPanel.css";
+import { useCheckoutHandler } from "../scripts/checkout";
 
-export default function CartPanel({ 
-  isOpen, 
-  onClose, 
-  cartItems, 
-  removeFromCart, 
-  duplicateItem, 
-  onCheckout 
+export default function CartPanel({
+  isOpen,
+  onClose,
+  cartItems,
+  updateQuantity,
 }) {
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.Price || 0), 0);
+  const { handleCheckout } = useCheckoutHandler(onClose);
+
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + (item.Price || 0) * (item.quantity || 1),
+    0
+  );
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
 
@@ -27,7 +31,9 @@ export default function CartPanel({
     >
       <div className="panelInner">
         {/* Close Button */}
-        <button className="closeButton" onClick={onClose}>×</button>
+        <button className="closeButton" onClick={onClose}>
+          ×
+        </button>
 
         {/* Title */}
         <h2 className="title">Your Order</h2>
@@ -42,20 +48,25 @@ export default function CartPanel({
                 <div key={index} className="itemCard">
                   <div className="itemHeader">
                     <span className="itemName">{item.Name}</span>
-                    <span className="itemPrice">${item.Price.toFixed(2)}</span>
+                    <span className="itemPrice">
+                      ${(item.Price * (item.quantity || 1)).toFixed(2)}
+                    </span>
                   </div>
                   <div className="itemActions">
-                    <button 
-                      className="actionBtn" 
-                      onClick={() => removeFromCart(index)}
+                    <button
+                      className="quantityBtn"
+                      onClick={() => updateQuantity(index, (item.quantity || 1) - 1)}
                     >
-                      Remove
+                      -
                     </button>
-                    <button 
-                      className="actionBtn" 
-                      onClick={() => duplicateItem(index)}
+                    <span className="quantityNumber">
+                      {item.quantity || 1}
+                    </span>
+                    <button
+                      className="quantityBtn"
+                      onClick={() => updateQuantity(index, (item.quantity || 1) + 1)}
                     >
-                      Duplicate
+                      +
                     </button>
                   </div>
                 </div>
@@ -80,7 +91,7 @@ export default function CartPanel({
           </div>
 
           {/* Checkout Button */}
-          <button className="checkoutBtn" onClick={onCheckout}>
+          <button className="checkoutBtn" onClick={handleCheckout}>
             Checkout
           </button>
         </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import "../css/SectionModal.css";
+import "../../css/SectionModal.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCartPlus } from "@fortawesome/free-solid-svg-icons";
 

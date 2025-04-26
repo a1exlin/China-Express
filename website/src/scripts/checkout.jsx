@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export function useCheckoutHandler() {
+export function useCheckoutHandler(onClose) {
   const navigate = useNavigate();
 
   async function handleCheckout() {
@@ -36,6 +36,7 @@ export function useCheckoutHandler() {
 
       if (result.verifiedCart && Array.isArray(result.verifiedCart)) {
         localStorage.setItem("cart", JSON.stringify(result.verifiedCart));
+        onClose();
         navigate("/completeCheckout");
       } else {
         console.error("Invalid server response: missing verifiedCart.");

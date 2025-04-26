@@ -1,5 +1,5 @@
 import React from "react";
-import MenuItems from "../components/MenuItems";
+import MenuItems from "../components/menu/MenuItems";
 
 export default function Menu({ addToCart }) {
   return (
