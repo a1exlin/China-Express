@@ -1,6 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import "../css/SectionModal.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCartPlus } from "@fortawesome/free-solid-svg-icons";
 
 const backdrop = {
   hidden: { opacity: 0 },
@@ -18,21 +20,8 @@ const modal = {
   exit: { y: "50%", opacity: 0, transition: { duration: 0.2 } },
 };
 
-
-
-export default function SectionModal({ section, onClose }) {
+export default function SectionModal({ section, onClose, addToCart }) {
   const { title, description, items = [], children = [] } = section;
-
-  function addToCart(_id, code, name, price) {
-    const newItem = { ID: _id, Code: code, Name: name, Price: price };
-  
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  
-    cart.push(newItem);
-  
-    localStorage.setItem("cart", JSON.stringify(cart));
-    console.log(JSON.stringify(cart));
-  }
 
   return (
     <motion.div
@@ -52,6 +41,7 @@ export default function SectionModal({ section, onClose }) {
         <button className="modal-close" onClick={onClose}>
           ×
         </button>
+
         <h2 className="modal-title">{title}</h2>
         {description && <p className="modal-description">{description}</p>}
 
@@ -63,12 +53,21 @@ export default function SectionModal({ section, onClose }) {
                   <span className="item-code">{code}</span>
                   <span className="item-name">{name}</span>
                   <span className="item-price">${price.toFixed(2)}</span>
-                  <button
+
+                  <FontAwesomeIcon
+                    icon={faCartPlus}
                     className="add-cart"
-                    onClick={() => addToCart(_id, code, name, price)}
-                  >
-                    ATC
-                  </button>
+                    onClick={() =>
+                      addToCart({
+                        ID: _id,
+                        Code: code,
+                        Name: name,
+                        Price: price,
+                        quantity: 1,
+                        description: description || "",
+                      })
+                    }
+                  />
                 </div>
                 {description && <p className="item-desc">{description}</p>}
               </li>

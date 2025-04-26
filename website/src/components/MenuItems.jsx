@@ -5,14 +5,35 @@ import SectionModal from "./SectionModal";
 
 export default function MenuItems({ addToCart }) {
   const [sections, setSections] = useState([]);
-  const [activeSection, setActive] = useState(null);
+  const [activeSection, setActiveSection] = useState(null);
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_SERVER_URI + "/api/menu")
-      .then((res) => res.json())
-      .then(setSections)
-      .catch(console.error);
+    async function fetchMenu() {
+      try {
+        const res = await fetch(import.meta.env.VITE_SERVER_URI + "/api/menu");
+        const data = await res.json();
+        setSections(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Failed to load menu:", error);
+      }
+    }
+
+    fetchMenu();
   }, []);
+
+  const handleSectionClick = (section) => {
+    const hasChildren = section.children?.length > 0;
+    const hasItems = section.items?.length > 0;
+
+    if (hasChildren || hasItems) {
+      setActiveSection(section);
+    }
+  };
+
+  const handleSubSectionClick = (child, event) => {
+    event.stopPropagation();
+    setActiveSection(child);
+  };
 
   return (
     <div className="menuItems">
@@ -21,56 +42,36 @@ export default function MenuItems({ addToCart }) {
           <SectionModal
             key={activeSection.slug}
             section={activeSection}
-            onClose={() => setActive(null)}
-            onItemClick={(item) => {
-              addToCart({
-                name: item.name,
-                price: item.price,
-                quantity: 1,
-                description: item.description || '',
-              });
-              setActive(null); // close the modal after adding
-            }}
-
+            onClose={() => setActiveSection(null)}
+            addToCart={addToCart}
           />
-
         )}
       </AnimatePresence>
 
-      {sections.map((sec) => {
-        const hasChildren = sec.children?.length > 0;
-        const hasItems = sec.items?.length > 0;
-
-        return (
-          <SubMenuCard
-            key={sec.slug}
-            image={sec.imageUrl}
-            title={sec.title}
-            description={sec.description}
-            expandable={hasChildren}
-            onClick={() => {
-              if (hasChildren || hasItems) setActive(sec);
-            }}
-          >
-            {hasChildren && (
-              <div className="subsections">
-                {sec.children.map((child) => (
-                  <div
-                    key={child.slug}
-                    style={{ cursor: "pointer", padding: "4px 0" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActive(child);
-                    }}
-                  >
-                    {child.title}
-                  </div>
-                ))}
-              </div>
-            )}
-          </SubMenuCard>
-        );
-      })}
+      {sections.map((section) => (
+        <SubMenuCard
+          key={section.slug}
+          image={section.imageUrl}
+          title={section.title}
+          description={section.description}
+          expandable={section.children?.length > 0}
+          onClick={() => handleSectionClick(section)}
+        >
+          {section.children?.length > 0 && (
+            <div className="subsections">
+              {section.children.map((child) => (
+                <div
+                  key={child.slug}
+                  className="subsection"
+                  onClick={(e) => handleSubSectionClick(child, e)}
+                >
+                  {child.title}
+                </div>
+              ))}
+            </div>
+          )}
+        </SubMenuCard>
+      ))}
     </div>
   );
 }

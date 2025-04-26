@@ -1,29 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import "../css/checkoutPanel.css";
 
-export default function CheckoutPanel({ isOpen, onCheckout }) {
-  const [cartItems, setCartItems] = useState([]);
-
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCartItems(storedCart);
-  }, []);
-
-  const handleRemoveItem = (index) => {
-    const updatedCart = [...cartItems];
-    updatedCart.splice(index, 1);
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-
-  const handleDuplicateItem = (index) => {
-    const duplicatedItem = { ...cartItems[index] };
-    const updatedCart = [...cartItems, duplicatedItem];
-    setCartItems(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-
+export default function CartPanel({ 
+  isOpen, 
+  onClose, 
+  cartItems, 
+  removeFromCart, 
+  duplicateItem, 
+  onCheckout 
+}) {
   const subtotal = cartItems.reduce((sum, item) => sum + (item.Price || 0), 0);
   const tax = subtotal * 0.08;
   const total = subtotal + tax;
@@ -40,8 +26,13 @@ export default function CheckoutPanel({ isOpen, onCheckout }) {
       className="checkoutPanel"
     >
       <div className="panelInner">
+        {/* Close Button */}
+        <button className="closeButton" onClick={onClose}>×</button>
+
+        {/* Title */}
         <h2 className="title">Your Order</h2>
 
+        {/* Cart Items */}
         <div className="itemListContainer">
           <div className="itemList">
             {cartItems.length === 0 ? (
@@ -54,15 +45,15 @@ export default function CheckoutPanel({ isOpen, onCheckout }) {
                     <span className="itemPrice">${item.Price.toFixed(2)}</span>
                   </div>
                   <div className="itemActions">
-                    <button
-                      className="actionBtn"
-                      onClick={() => handleRemoveItem(index)}
+                    <button 
+                      className="actionBtn" 
+                      onClick={() => removeFromCart(index)}
                     >
                       Remove
                     </button>
-                    <button
-                      className="actionBtn"
-                      onClick={() => handleDuplicateItem(index)}
+                    <button 
+                      className="actionBtn" 
+                      onClick={() => duplicateItem(index)}
                     >
                       Duplicate
                     </button>
@@ -73,6 +64,7 @@ export default function CheckoutPanel({ isOpen, onCheckout }) {
           </div>
         </div>
 
+        {/* Summary */}
         <div className="summary">
           <div className="summaryRow">
             <span>Subtotal:</span>
@@ -86,6 +78,8 @@ export default function CheckoutPanel({ isOpen, onCheckout }) {
             <span>Total:</span>
             <span>${total.toFixed(2)}</span>
           </div>
+
+          {/* Checkout Button */}
           <button className="checkoutBtn" onClick={onCheckout}>
             Checkout
           </button>

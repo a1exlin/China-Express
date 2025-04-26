@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Pages
@@ -7,13 +7,23 @@ import Menu from "./pages/Menu";
 
 // Components
 import NavBar from "./components/navBar";
-import CheckoutPanel from "./pages/Order"; // Your CheckoutPanel component
+import CartPanel from "./pages/CartPanel";
 
 function App() {
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
 
-  const addToCart = (item) => setCartItems((prev) => [...prev, item]);
+  const [cartItems, setCartItems] = useState(() => {
+    const stored = localStorage.getItem("cart");
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  const addToCart = (item) => {
+    setCartItems((prev) => [...prev, item]);
+  };
 
   const removeFromCart = (index) => {
     const updated = [...cartItems];
@@ -26,26 +36,16 @@ function App() {
     setCartItems((prev) => [...prev, duplicated]);
   };
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const tax = subtotal * 0.06;
-  const total = subtotal + tax;
+  const handleCheckout = () => {
+    console.log("Proceed to checkout:", cartItems);
+    // Redirect to payment page, or open payment modal here later
+  };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "white",
-        position: "relative",
-      }}
-    >
+    <div style={{ minHeight: "100vh", backgroundColor: "white", position: "relative" }}>
       <BrowserRouter>
-        <NavBar
-          isCheckoutOpen={isCheckoutOpen}
-          setCheckoutOpen={setCheckoutOpen}
-        />
+        <NavBar setCheckoutOpen={setCheckoutOpen} />
+
         <Routes>
           <Route path="*" element={<Navigate to="/home" />} />
           <Route path="/home" element={<Home />} />
@@ -53,17 +53,13 @@ function App() {
         </Routes>
       </BrowserRouter>
 
-      {/* Floating Checkout Panel */}
-      <CheckoutPanel
+      <CartPanel
         isOpen={isCheckoutOpen}
+        onClose={() => setCheckoutOpen(false)}
         cartItems={cartItems}
-        onRemoveItem={removeFromCart}
-        onDuplicateItem={duplicateItem}
-        subtotal={subtotal}
-        tax={tax}
-        total={total}
-        onAddItem={addToCart}
-        onCheckout={() => alert("Order placed!")}
+        removeFromCart={removeFromCart}
+        duplicateItem={duplicateItem}
+        onCheckout={handleCheckout}
       />
     </div>
   );
