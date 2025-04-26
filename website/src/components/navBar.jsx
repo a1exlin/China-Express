@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import "../css/navBar.css";
 import logo from "../image/ChinaExpressLogo.png";
 
@@ -21,11 +23,10 @@ function NavBar({ isCheckoutOpen, setCheckoutOpen }) {
           <div style={{ marginLeft: "auto" }}>
             <button
               className="navbar-button order-button"
-              onClick={() => setCheckoutOpen(prev => !prev)}
+              onClick={() => setCheckoutOpen((prev) => !prev)}
             >
-              {isCheckoutOpen ? "Close Order" : "Order Now"}
+            <FontAwesomeIcon icon={faCartShopping} />
             </button>
-
           </div>
         </div>
       </div>
