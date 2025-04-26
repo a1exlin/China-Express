@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../css/navBar.css";
 import logo from "../image/ChinaExpressLogo.png";
 
-function NavBar() {
+function NavBar({ isCheckoutOpen, setCheckoutOpen }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -21,10 +21,11 @@ function NavBar() {
           <div style={{ marginLeft: "auto" }}>
             <button
               className="navbar-button order-button"
-              onClick={() => navigate("/order")}
+              onClick={() => setCheckoutOpen(prev => !prev)}
             >
-              Order Now
+              {isCheckoutOpen ? "Close Order" : "Order Now"}
             </button>
+
           </div>
         </div>
       </div>

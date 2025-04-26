@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion'; // Add framer-motion
 
 export default function CheckoutPanel({
   cartItems,
@@ -10,10 +11,15 @@ export default function CheckoutPanel({
   onCheckout
 }) {
   return (
-    <div style={styles.panel}>
+    <motion.div
+      initial={{ x: "100%" }}
+      animate={{ x: "0%" }}
+      exit={{ x: "100%" }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      style={styles.panel}
+    >
       <h2 style={styles.heading}>Your Order</h2>
 
-      {/* Cart Items */}
       <div style={styles.itemList}>
         {cartItems.length === 0 ? (
           <div style={styles.emptyText}>No items yet.</div>
@@ -25,12 +31,8 @@ export default function CheckoutPanel({
                 <div style={styles.itemPrice}>${(item.price * item.quantity).toFixed(2)}</div>
               </div>
               <div style={styles.itemOptions}>
-                <button onClick={() => onRemoveItem(index)} style={styles.optionButton}>
-                  Remove
-                </button>
-                <button onClick={() => onDuplicateItem(index)} style={styles.optionButton}>
-                  Duplicate
-                </button>
+                <button onClick={() => onRemoveItem(index)} style={styles.optionButton}>Remove</button>
+                <button onClick={() => onDuplicateItem(index)} style={styles.optionButton}>Duplicate</button>
               </div>
               {item.description && (
                 <div style={styles.itemDescription}>{item.description}</div>
@@ -40,7 +42,6 @@ export default function CheckoutPanel({
         )}
       </div>
 
-      {/* Order Summary */}
       <div style={styles.summary}>
         <div style={styles.summaryRow}>
           <span>Subtotal:</span>
@@ -56,11 +57,10 @@ export default function CheckoutPanel({
         </div>
       </div>
 
-      {/* Checkout Button */}
       <button style={styles.checkoutButton} onClick={onCheckout}>
         Checkout
       </button>
-    </div>
+    </motion.div>
   );
 }
 
@@ -77,7 +77,7 @@ const styles = {
     flexDirection: 'column',
     padding: '20px',
     overflowY: 'auto',
-    zIndex: 1000,
+    zIndex: 1001,
     borderLeft: '1px solid #ddd',
   },
   heading: {
