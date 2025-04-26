@@ -3,7 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { SubMenuCard } from "./menuCards";
 import SectionModal from "./SectionModal";
 
-export default function MenuItems() {
+export default function MenuItems({ addToCart }) {
   const [sections, setSections] = useState([]);
   const [activeSection, setActive] = useState(null);
 
@@ -22,13 +22,24 @@ export default function MenuItems() {
             key={activeSection.slug}
             section={activeSection}
             onClose={() => setActive(null)}
+            onItemClick={(item) => {
+              addToCart({
+                name: item.name,
+                price: item.price,
+                quantity: 1,
+                description: item.description || '',
+              });
+              setActive(null); // close the modal after adding
+            }}
+
           />
+
         )}
       </AnimatePresence>
 
       {sections.map((sec) => {
         const hasChildren = sec.children?.length > 0;
-        const hasItems    = sec.items?.length > 0;
+        const hasItems = sec.items?.length > 0;
 
         return (
           <SubMenuCard
