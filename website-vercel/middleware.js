@@ -4,13 +4,15 @@ import { verify } from "jsonwebtoken"
 export async function middleware(request) {
   // Check if the request is for the admin area
   if (request.nextUrl.pathname.startsWith("/admin")) {
-    // Skip authentication check for login, setup, and password reset pages
-    if (
-      request.nextUrl.pathname.startsWith("/admin/login") ||
-      request.nextUrl.pathname.startsWith("/admin/setup") ||
-      request.nextUrl.pathname.startsWith("/admin/forgot-password") ||
+    // Public admin routes that don't require authentication
+    const publicAdminRoutes = ["/admin/login", "/admin/setup", "/admin/forgot-password"]
+
+    // Check if the current path is a public route or starts with reset-password
+    const isPublicRoute =
+      publicAdminRoutes.includes(request.nextUrl.pathname) ||
       request.nextUrl.pathname.startsWith("/admin/reset-password")
-    ) {
+
+    if (isPublicRoute) {
       return NextResponse.next()
     }
 
@@ -19,18 +21,34 @@ export async function middleware(request) {
 
     // If there's no token, redirect to login
     if (!token) {
+      console.log("No auth token found, redirecting to login")
       return NextResponse.redirect(new URL("/admin/login", request.url))
     }
 
     try {
       // Verify token
-      verify(token, process.env.JWT_SECRET || "your-secret-key")
+      const decoded = verify(token, process.env.JWT_SECRET || "your-secret-key")
+
+      // Add user info to request headers for debugging
+      const requestHeaders = new Headers(request.headers)
+      requestHeaders.set("x-user-id", decoded.id)
 
       // Token is valid, continue to the admin page
-      return NextResponse.next()
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      })
     } catch (error) {
-      // Token is invalid, redirect to login
-      return NextResponse.redirect(new URL("/admin/login", request.url))
+      console.log("Invalid token:", error.message)
+      // Clear the invalid token
+      const response = NextResponse.redirect(new URL("/admin/login", request.url))
+      response.cookies.set("auth_token", "", {
+        httpOnly: true,
+        expires: new Date(0),
+        path: "/",
+      })
+      return response
     }
   }
 

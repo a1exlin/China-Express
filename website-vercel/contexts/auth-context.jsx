@@ -15,13 +15,27 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function loadUserFromSession() {
       try {
-        const res = await fetch("/api/auth/me")
+        const res = await fetch("/api/auth/me", {
+          // Add cache: 'no-store' to prevent caching
+          cache: "no-store",
+          headers: {
+            // Add a cache-busting header
+            "x-cache-bust": Date.now().toString(),
+          },
+        })
+
         if (res.ok) {
           const data = await res.json()
           setUser(data.user)
+          console.log("User loaded from session:", data.user)
+        } else {
+          // Clear user if not authenticated
+          setUser(null)
+          console.log("Not authenticated, cleared user state")
         }
       } catch (error) {
         console.error("Failed to load user session:", error)
+        setUser(null)
       } finally {
         setLoading(false)
       }
@@ -49,6 +63,9 @@ export function AuthProvider({ children }) {
       toast.success("Login successful", {
         description: `Welcome back, ${data.user.name}!`,
       })
+
+      // Use window.location for a hard redirect
+      window.location.href = "/admin"
       return true
     } catch (error) {
       toast.error("Login failed", {

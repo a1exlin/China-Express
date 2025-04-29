@@ -14,7 +14,10 @@ export async function GET() {
 
     try {
       // Verify token
-      const decoded = verify(token, process.env.JWT_SECRET || "your-secret-key");
+      const decoded = verify(
+        token,
+        process.env.JWT_SECRET
+      );
 
       return NextResponse.json({
         user: {
@@ -25,7 +28,11 @@ export async function GET() {
         },
       });
     } catch (error) {
-      return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+      console.error(error);
+      return NextResponse.json(
+        { error: "Invalid or expired token" },
+        { status: 401 },
+      );
     }
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -18,15 +17,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [needsSetup, setNeedsSetup] = useState(false)
   const [checkingSetup, setCheckingSetup] = useState(true)
-  const router = useRouter()
-  const { user, login, loading: authLoading } = useAuth()
-
-  // Redirect to admin if already logged in
-  useEffect(() => {
-    if (user && !authLoading) {
-      router.push("/admin")
-    }
-  }, [user, authLoading, router])
+  const { user, loading: authLoading } = useAuth()
 
   // Check if we need to set up the first admin
   useEffect(() => {
@@ -45,17 +36,35 @@ export default function LoginPage() {
     checkSetup()
   }, [])
 
+  // Redirect to admin if already logged in
+  useEffect(() => {
+    if (user && !authLoading) {
+      console.log("User already logged in, redirecting to admin")
+      window.location.href = "/admin"
+    }
+  }, [user, authLoading])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
 
     try {
-      const success = await login(email, password)
-      if (success) {
-        // Force a hard navigation to /admin to ensure middleware re-evaluates
-        window.location.href = "/admin"
+      // Direct API call instead of using context
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Login failed")
       }
+
+      // Force a hard navigation to /admin
+      window.location.href = "/admin"
     } catch (error) {
       setError(error.message || "Login failed")
     } finally {
@@ -86,7 +95,10 @@ export default function LoginPage() {
           {needsSetup ? (
             <div className="text-center">
               <p className="mb-4">No admin account found. You need to create the first admin account.</p>
-              <Button className="w-full bg-secondary hover:bg-secondary/90" onClick={() => router.push("/admin/setup")}>
+              <Button
+                className="w-full bg-secondary hover:bg-secondary/90"
+                onClick={() => (window.location.href = "/admin/setup")}
+              >
                 Create Admin Account
               </Button>
             </div>
