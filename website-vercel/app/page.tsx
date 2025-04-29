@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ChevronRight, Clock, MapPin, Phone, Star } from "lucide-react"
@@ -8,9 +11,35 @@ import FeaturedDishes from "@/components/featured-dishes"
 import HeroSection from "@/components/hero-section"
 
 export default function Home() {
+  const [settings, setSettings] = useState({
+    restaurantName: "China Express",
+    phoneNumber: "(555) 123-4567",
+    address: "123 Main Street, Anytown",
+    openingHours: "Mon-Sun: 11:00 AM - 10:00 PM",
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch("/api/settings")
+        const data = await res.json()
+        if (data) {
+          setSettings(data)
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSettings()
+  }, [])
+
   return (
     <div className="flex min-h-screen flex-col">
-      <HeroSection />
+      <HeroSection settings={settings} />
 
       {/* Quick Info Section */}
       <section className="container mx-auto grid grid-cols-1 gap-4 px-4 py-8 md:grid-cols-3 md:gap-6">
@@ -21,7 +50,7 @@ export default function Home() {
             </div>
             <div>
               <h3 className="font-medium">Opening Hours</h3>
-              <p className="text-sm text-muted-foreground">Mon-Sun: 11:00 AM - 10:00 PM</p>
+              <p className="text-sm text-muted-foreground">{settings.openingHours}</p>
             </div>
           </CardContent>
         </Card>
@@ -32,7 +61,7 @@ export default function Home() {
             </div>
             <div>
               <h3 className="font-medium">Call For Order</h3>
-              <p className="text-sm text-muted-foreground">(555) 123-4567</p>
+              <p className="text-sm text-muted-foreground">{settings.phoneNumber}</p>
             </div>
           </CardContent>
         </Card>
@@ -43,7 +72,7 @@ export default function Home() {
             </div>
             <div>
               <h3 className="font-medium">Our Location</h3>
-              <p className="text-sm text-muted-foreground">123 Main Street, Anytown</p>
+              <p className="text-sm text-muted-foreground">{settings.address}</p>
             </div>
           </CardContent>
         </Card>
@@ -54,16 +83,16 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:grid-cols-2 md:gap-12">
             <div className="flex flex-col justify-center">
-              <h2 className="mb-2 text-3xl font-bold text-gray-900">China Express</h2>
+              <h2 className="mb-2 text-3xl font-bold text-gray-900">{settings.restaurantName}</h2>
               <div className="mb-4 flex">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-5 w-5 fill-tertiary text-tertiary" />
                 ))}
               </div>
               <p className="mb-6 text-gray-700">
-                Welcome to China Express, where authentic Chinese cuisine meets modern dining experience. For over 20
-                years, we've been serving the community with traditional recipes passed down through generations, using
-                only the freshest ingredients and traditional cooking techniques.
+                Welcome to {settings.restaurantName}, where authentic Chinese cuisine meets modern dining experience.
+                For over 20 years, we've been serving the community with traditional recipes passed down through
+                generations, using only the freshest ingredients and traditional cooking techniques.
               </p>
               <div className="flex gap-4">
                 <Button className="bg-secondary hover:bg-secondary/90">View Our Menu</Button>

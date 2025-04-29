@@ -40,6 +40,20 @@ const settingsSchema = new mongoose.Schema({
     type: String,
     default: "Mon-Sun: 11:00 AM - 10:00 PM",
   },
+  enableDelivery: {
+    type: Boolean,
+    default: true,
+  },
+  mapCoordinates: {
+    lat: {
+      type: Number,
+      default: 40.712776,
+    },
+    lng: {
+      type: Number,
+      default: -74.005974,
+    },
+  },
   updatedAt: {
     type: Date,
     default: Date.now,

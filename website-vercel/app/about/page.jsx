@@ -1,13 +1,43 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Image from "next/image"
 
 export default function AboutPage() {
+  const [settings, setSettings] = useState({
+    restaurantName: "China Express",
+    phoneNumber: "(555) 123-4567",
+    address: "123 Main Street, Anytown",
+    openingHours: "Mon-Sun: 11:00 AM - 10:00 PM",
+    enableDelivery: true,
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch("/api/settings")
+        const data = await res.json()
+        if (data) {
+          setSettings(data)
+        }
+      } catch (error) {
+        console.error("Error fetching settings:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSettings()
+  }, [])
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-10 text-center">
         <h1 className="mb-2 text-3xl font-bold text-gray-900">About Us</h1>
         <div className="mx-auto mb-4 h-1 w-20 bg-secondary"></div>
         <p className="mx-auto max-w-2xl text-gray-600">
-          Learn more about China Express and our commitment to authentic Chinese cuisine.
+          Learn more about {settings.restaurantName} and our commitment to authentic Chinese cuisine.
         </p>
       </div>
 
@@ -15,8 +45,8 @@ export default function AboutPage() {
         <div>
           <h2 className="mb-4 text-2xl font-semibold text-gray-900">Our Story</h2>
           <p className="mb-4 text-gray-700">
-            China Express was founded in 2005 by Chef Li Wei, who brought his family's traditional recipes from Sichuan
-            Province to create an authentic Chinese dining experience.
+            {settings.restaurantName} was founded in 2005 by Chef Li Wei, who brought his family's traditional recipes
+            from Sichuan Province to create an authentic Chinese dining experience.
           </p>
           <p className="mb-4 text-gray-700">
             What started as a small takeout restaurant has grown into a beloved establishment in the community, known
@@ -74,7 +104,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <div className="mt-16 bg-gray-50 p-8 rounded-lg">
+      <div className="mt-16 rounded-lg bg-gray-50 p-8">
         <h2 className="mb-6 text-center text-2xl font-semibold text-gray-900">Our Values</h2>
         <div className="grid gap-6 md:grid-cols-3">
           <div className="text-center">
@@ -160,6 +190,17 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      <div className="mt-16 rounded-lg overflow-hidden h-[300px] relative">
+        <iframe
+          src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2219901290355!2d-74.00369368400567!3d40.71312937933185!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDA0JzI3LjIiTiA3NMKwMDAnMTIuOSJX!5e0!3m2!1sen!2sus!4v1620160882595!5m2!1sen!2sus`}
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen=""
+          loading="lazy"
+        ></iframe>
       </div>
     </div>
   )

@@ -15,7 +15,9 @@ export default function OrderPage() {
   const [settings, setSettings] = useState({
     taxPercentage: 8.25,
     deliveryFee: 3.99,
+    enableDelivery: true,
   })
+  const [orderType, setOrderType] = useState("delivery")
   const [loadingSettings, setLoadingSettings] = useState(true)
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function OrderPage() {
 
   const subtotal = getCartTotal()
   const tax = subtotal * (settings.taxPercentage / 100)
-  const deliveryFee = settings.deliveryFee
+  const deliveryFee = settings.enableDelivery && orderType === "delivery" ? settings.deliveryFee : 0
   const total = subtotal + tax + deliveryFee
 
   if (isLoading || loadingSettings) {

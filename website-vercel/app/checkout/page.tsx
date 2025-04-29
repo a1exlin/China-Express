@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Check, CreditCard, MapPin } from "lucide-react"
+import { Check, MapPin, CreditCard, Wallet } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -15,39 +15,37 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useCart } from "@/contexts/cart-context"
+import { useSettings } from "@/contexts/settings-context"
 
 export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("credit-card")
+  const [orderType, setOrderType] = useState("delivery")
   const [orderPlaced, setOrderPlaced] = useState(false)
-  const [settings, setSettings] = useState({
-    taxPercentage: 8.25,
-    deliveryFee: 3.99,
-  })
-  const [loadingSettings, setLoadingSettings] = useState(true)
   const [orderedItems, setOrderedItems] = useState([])
+  const [orderNumber, setOrderNumber] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { cartItems, getCartTotal, clearCart } = useCart()
+  const { settings, loading: loadingSettings } = useSettings()
   const router = useRouter()
 
-  useEffect(() => {
-    async function fetchSettings() {
-      try {
-        const res = await fetch("/api/settings")
-        const data = await res.json()
-        setSettings(data)
-      } catch (error) {
-        console.error("Error fetching settings:", error)
-      } finally {
-        setLoadingSettings(false)
-      }
-    }
-
-    fetchSettings()
-  }, [])
+  // Form state
+  const [formData, setFormData] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
+    address: {
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+    },
+    notes: "",
+  })
 
   // Calculate order summary
   const subtotal = getCartTotal()
   const tax = subtotal * (settings.taxPercentage / 100)
-  const deliveryFee = settings.deliveryFee
+  const deliveryFee = orderType === "delivery" ? settings.deliveryFee : 0
   const total = subtotal + tax + deliveryFee
 
   // Redirect to cart if empty
@@ -57,22 +55,108 @@ export default function CheckoutPage() {
     }
   }, [cartItems, orderPlaced, router])
 
-  const handlePlaceOrder = (e) => {
+  useEffect(() => {
+    if (!settings.enableDelivery) {
+      setOrderType("pickup")
+    }
+  }, [settings.enableDelivery])
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".")
+      setFormData((prev) => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value,
+        },
+      }))
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
+  }
+
+  const handlePlaceOrder = async (e) => {
     e.preventDefault()
+    setIsSubmitting(true)
 
-    // Save the current cart items before clearing
-    setOrderedItems([...cartItems])
+    try {
+      // Validate form
+      if (!formData.customerName || !formData.customerEmail || !formData.customerPhone) {
+        toast.error("Please fill in all required fields")
+        setIsSubmitting(false)
+        return
+      }
 
-    // In a real app, you would process the payment and submit the order here
+      if (
+        orderType === "delivery" &&
+        (!formData.address.street || !formData.address.city || !formData.address.zipCode)
+      ) {
+        toast.error("Please provide a complete delivery address")
+        setIsSubmitting(false)
+        return
+      }
 
-    // Simulate order processing
-    setTimeout(() => {
+      // Save the current cart items before clearing
+      const items = cartItems.map((item) => ({
+        menuItemId: item._id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      }))
+
+      setOrderedItems([...cartItems])
+
+      // Create order object
+      const orderData = {
+        customerName: formData.customerName,
+        customerEmail: formData.customerEmail,
+        customerPhone: formData.customerPhone,
+        address: orderType === "delivery" ? formData.address : null,
+        items,
+        subtotal,
+        tax,
+        deliveryFee,
+        total,
+        paymentMethod,
+        orderType,
+        notes: formData.notes,
+      }
+
+      // Submit order to API
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to place order")
+      }
+
+      const data = await response.json()
+      setOrderNumber(data.orderNumber)
       setOrderPlaced(true)
       clearCart()
+
       toast.success("Order placed successfully!", {
         description: "Your order has been received and is being prepared.",
       })
-    }, 1500)
+    } catch (error) {
+      console.error("Error placing order:", error)
+      toast.error("Failed to place order", {
+        description: "Please try again or contact customer support.",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (orderPlaced) {
@@ -90,7 +174,7 @@ export default function CheckoutPage() {
           </CardHeader>
           <CardContent>
             <div className="mb-4 rounded-lg bg-gray-50 p-4">
-              <p className="font-medium">Order #{Math.floor(Math.random() * 90000) + 10000}</p>
+              <p className="font-medium">Order #{orderNumber}</p>
               <p className="text-sm text-gray-500">Estimated delivery: 30-45 minutes</p>
             </div>
             <Separator className="my-4" />
@@ -111,9 +195,14 @@ export default function CheckoutPage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-2">
+            <Link href={`/track-order?id=${orderNumber}`} className="w-full">
+              <Button className="w-full bg-secondary hover:bg-secondary/90">Track Your Order</Button>
+            </Link>
             <Link href="/" className="w-full">
-              <Button className="w-full bg-secondary hover:bg-secondary/90">Return to Home</Button>
+              <Button variant="outline" className="w-full">
+                Return to Home
+              </Button>
             </Link>
           </CardFooter>
         </Card>
@@ -131,6 +220,16 @@ export default function CheckoutPage() {
     )
   }
 
+  if (loadingSettings) {
+    return (
+      <div className="container mx-auto flex min-h-[400px] items-center justify-center px-4 py-12">
+        <div className="text-center">
+          <p className="mb-4">Loading checkout...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="mb-8 text-center text-3xl font-bold">Checkout</h1>
@@ -138,87 +237,232 @@ export default function CheckoutPage() {
       <div className="grid gap-8 md:grid-cols-3">
         <div className="md:col-span-2">
           <form onSubmit={handlePlaceOrder}>
-            <Tabs defaultValue="delivery" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="delivery">Delivery</TabsTrigger>
-                <TabsTrigger value="pickup">Pickup</TabsTrigger>
-              </TabsList>
+            {settings.enableDelivery ? (
+              <Tabs defaultValue="delivery" value={orderType} onValueChange={setOrderType} className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="delivery">Delivery</TabsTrigger>
+                  <TabsTrigger value="pickup">Pickup</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="delivery" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5" />
-                      Delivery Address
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="first-name">First Name</Label>
-                        <Input id="first-name" required />
+                <TabsContent value="delivery" className="mt-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5" />
+                        Delivery Address
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="customerName">Full Name</Label>
+                          <Input
+                            id="customerName"
+                            name="customerName"
+                            value={formData.customerName}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="customerPhone">Phone Number</Label>
+                          <Input
+                            id="customerPhone"
+                            name="customerPhone"
+                            type="tel"
+                            value={formData.customerPhone}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="last-name">Last Name</Label>
-                        <Input id="last-name" required />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="address">Street Address</Label>
-                      <Input id="address" required />
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="city">City</Label>
-                        <Input id="city" required />
+                        <Label htmlFor="customerEmail">Email</Label>
+                        <Input
+                          id="customerEmail"
+                          name="customerEmail"
+                          type="email"
+                          value={formData.customerEmail}
+                          onChange={handleInputChange}
+                          required
+                        />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="state">State</Label>
-                        <Input id="state" required />
+                        <Label htmlFor="address.street">Street Address</Label>
+                        <Input
+                          id="address.street"
+                          name="address.street"
+                          value={formData.address.street}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="address.city">City</Label>
+                          <Input
+                            id="address.city"
+                            name="address.city"
+                            value={formData.address.city}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="address.state">State</Label>
+                          <Input
+                            id="address.state"
+                            name="address.state"
+                            value={formData.address.state}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="address.zipCode">ZIP Code</Label>
+                          <Input
+                            id="address.zipCode"
+                            name="address.zipCode"
+                            value={formData.address.zipCode}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="zip">ZIP Code</Label>
-                        <Input id="zip" required />
+                        <Label htmlFor="notes">Delivery Instructions (Optional)</Label>
+                        <Textarea
+                          id="notes"
+                          name="notes"
+                          value={formData.notes}
+                          onChange={handleInputChange}
+                          placeholder="Apartment number, gate code, etc."
+                        />
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input id="phone" type="tel" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="instructions">Delivery Instructions (Optional)</Label>
-                      <Textarea id="instructions" placeholder="Apartment number, gate code, etc." />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
-              <TabsContent value="pickup" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Pickup Information</CardTitle>
-                    <CardDescription>Your order will be available for pickup at our restaurant.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="rounded-lg bg-gray-50 p-4">
-                      <h3 className="mb-2 font-medium">China Express Restaurant</h3>
-                      <p className="text-sm text-gray-600">123 Main Street, Anytown</p>
-                      <p className="text-sm text-gray-600">Phone: (555) 123-4567</p>
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="pickup-name">Full Name</Label>
-                        <Input id="pickup-name" required />
+                <TabsContent value="pickup" className="mt-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Pickup Information</CardTitle>
+                      <CardDescription>Your order will be available for pickup at our restaurant.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="rounded-lg bg-gray-50 p-4">
+                        <h3 className="mb-2 font-medium">{settings.restaurantName}</h3>
+                        <p className="text-sm text-gray-600">{settings.address}</p>
+                        <p className="text-sm text-gray-600">Phone: {settings.phoneNumber}</p>
+                      </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="customerName">Full Name</Label>
+                          <Input
+                            id="customerName"
+                            name="customerName"
+                            value={formData.customerName}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="customerPhone">Phone Number</Label>
+                          <Input
+                            id="customerPhone"
+                            name="customerPhone"
+                            type="tel"
+                            value={formData.customerPhone}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="pickup-phone">Phone Number</Label>
-                        <Input id="pickup-phone" type="tel" required />
+                        <Label htmlFor="customerEmail">Email</Label>
+                        <Input
+                          id="customerEmail"
+                          name="customerEmail"
+                          type="email"
+                          value={formData.customerEmail}
+                          onChange={handleInputChange}
+                          required
+                        />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="notes">Special Instructions (Optional)</Label>
+                        <Textarea
+                          id="notes"
+                          name="notes"
+                          value={formData.notes}
+                          onChange={handleInputChange}
+                          placeholder="Any special instructions for your order"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            ) : (
+              // When delivery is disabled, only show pickup option
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle>Pickup Information</CardTitle>
+                  <CardDescription>Your order will be available for pickup at our restaurant.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <h3 className="mb-2 font-medium">{settings.restaurantName}</h3>
+                    <p className="text-sm text-gray-600">{settings.address}</p>
+                    <p className="text-sm text-gray-600">Phone: {settings.phoneNumber}</p>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="customerName">Full Name</Label>
+                      <Input
+                        id="customerName"
+                        name="customerName"
+                        value={formData.customerName}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                    <div className="space-y-2">
+                      <Label htmlFor="customerPhone">Phone Number</Label>
+                      <Input
+                        id="customerPhone"
+                        name="customerPhone"
+                        type="tel"
+                        value={formData.customerPhone}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="customerEmail">Email</Label>
+                    <Input
+                      id="customerEmail"
+                      name="customerEmail"
+                      type="email"
+                      value={formData.customerEmail}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Special Instructions (Optional)</Label>
+                    <Textarea
+                      id="notes"
+                      name="notes"
+                      value={formData.notes}
+                      onChange={handleInputChange}
+                      placeholder="Any special instructions for your order"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="mt-8">
               <CardHeader>
@@ -229,22 +473,37 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent>
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
-                  <div className="flex items-center space-x-2 rounded-lg border p-4">
+                  <div
+                    className={`flex items-center space-x-2 rounded-lg border p-4 ${paymentMethod === "credit-card" ? "border-secondary bg-secondary/5" : ""}`}
+                  >
                     <RadioGroupItem value="credit-card" id="credit-card" />
                     <Label htmlFor="credit-card" className="flex-1 cursor-pointer">
-                      Credit/Debit Card
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4" />
+                        Credit/Debit Card
+                      </div>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 rounded-lg border p-4">
+                  <div
+                    className={`flex items-center space-x-2 rounded-lg border p-4 ${paymentMethod === "paypal" ? "border-secondary bg-secondary/5" : ""}`}
+                  >
                     <RadioGroupItem value="paypal" id="paypal" />
                     <Label htmlFor="paypal" className="flex-1 cursor-pointer">
-                      PayPal
+                      <div className="flex items-center gap-2">
+                        <Wallet className="h-4 w-4" />
+                        PayPal
+                      </div>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 rounded-lg border p-4">
+                  <div
+                    className={`flex items-center space-x-2 rounded-lg border p-4 ${paymentMethod === "cash" ? "border-secondary bg-secondary/5" : ""}`}
+                  >
                     <RadioGroupItem value="cash" id="cash" />
                     <Label htmlFor="cash" className="flex-1 cursor-pointer">
-                      Cash on Delivery
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4" />
+                        Cash on {orderType === "delivery" ? "Delivery" : "Pickup"}
+                      </div>
                     </Label>
                   </div>
                 </RadioGroup>
@@ -279,8 +538,8 @@ export default function CheckoutPage() {
             </Card>
 
             <div className="mt-8 text-center md:text-right">
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90">
-                Place Order
+              <Button type="submit" className="bg-secondary hover:bg-secondary/90" disabled={isSubmitting}>
+                {isSubmitting ? "Processing..." : "Place Order"}
               </Button>
             </div>
           </form>
@@ -307,13 +566,15 @@ export default function CheckoutPage() {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Tax</span>
+                  <span>Tax ({settings.taxPercentage}%)</span>
                   <span>${tax.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Delivery Fee</span>
-                  <span>${deliveryFee.toFixed(2)}</span>
-                </div>
+                {orderType === "delivery" && (
+                  <div className="flex justify-between">
+                    <span>Delivery Fee</span>
+                    <span>${deliveryFee.toFixed(2)}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between font-bold">
                   <span>Total</span>
