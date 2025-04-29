@@ -33,7 +33,7 @@ export function CartProvider({ children }) {
   const addToCart = (item) => {
     setCartItems((prevItems) => {
       // Check if item already exists in cart
-      const existingItemIndex = prevItems.findIndex((cartItem) => cartItem.id === item.id)
+      const existingItemIndex = prevItems.findIndex((cartItem) => cartItem._id === item._id)
 
       if (existingItemIndex >= 0) {
         // Item exists, increase quantity
