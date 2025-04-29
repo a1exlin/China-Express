@@ -55,7 +55,7 @@ export function CartProvider({ children }) {
   }
 
   const removeFromCart = (id) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id))
+    setCartItems((prevItems) => prevItems.filter((item) => item._id !== id))
 
     toast.success("Item removed", {
       description: "The item has been removed from your cart.",
@@ -65,7 +65,7 @@ export function CartProvider({ children }) {
   const updateQuantity = (id, quantity) => {
     if (quantity < 1) return
 
-    setCartItems((prevItems) => prevItems.map((item) => (item.id === id ? { ...item, quantity } : item)))
+    setCartItems((prevItems) => prevItems.map((item) => (item._id === id ? { ...item, quantity } : item)))
   }
 
   const clearCart = () => {
