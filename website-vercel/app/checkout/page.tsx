@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Check, CreditCard, MapPin } from "lucide-react"
 import { toast } from "sonner"
 
@@ -14,7 +15,6 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useCart } from "@/contexts/cart-context"
-import { useRouter } from "next/navigation"
 
 export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("credit-card")
@@ -24,6 +24,7 @@ export default function CheckoutPage() {
     deliveryFee: 3.99,
   })
   const [loadingSettings, setLoadingSettings] = useState(true)
+  const [orderedItems, setOrderedItems] = useState([])
   const { cartItems, getCartTotal, clearCart } = useCart()
   const router = useRouter()
 
@@ -59,6 +60,9 @@ export default function CheckoutPage() {
   const handlePlaceOrder = (e) => {
     e.preventDefault()
 
+    // Save the current cart items before clearing
+    setOrderedItems([...cartItems])
+
     // In a real app, you would process the payment and submit the order here
 
     // Simulate order processing
@@ -92,7 +96,7 @@ export default function CheckoutPage() {
             <Separator className="my-4" />
             <div className="space-y-2">
               <h3 className="font-medium">Order Summary</h3>
-              {cartItems.map((item, index) => (
+              {orderedItems.map((item, index) => (
                 <div key={index} className="flex justify-between text-sm">
                   <span>
                     {item.quantity}x {item.name}
@@ -109,7 +113,7 @@ export default function CheckoutPage() {
           </CardContent>
           <CardFooter>
             <Link href="/" className="w-full">
-              <Button className="w-full bg-red-600 hover:bg-red-700">Return to Home</Button>
+              <Button className="w-full bg-secondary hover:bg-secondary/90">Return to Home</Button>
             </Link>
           </CardFooter>
         </Card>
@@ -197,7 +201,7 @@ export default function CheckoutPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="rounded-lg bg-gray-50 p-4">
-                      <h3 className="mb-2 font-medium">Golden Dragon Restaurant</h3>
+                      <h3 className="mb-2 font-medium">China Express Restaurant</h3>
                       <p className="text-sm text-gray-600">123 Main Street, Anytown</p>
                       <p className="text-sm text-gray-600">Phone: (555) 123-4567</p>
                     </div>
@@ -275,7 +279,7 @@ export default function CheckoutPage() {
             </Card>
 
             <div className="mt-8 text-center md:text-right">
-              <Button type="submit" className="bg-red-600 hover:bg-red-700">
+              <Button type="submit" className="bg-secondary hover:bg-secondary/90">
                 Place Order
               </Button>
             </div>

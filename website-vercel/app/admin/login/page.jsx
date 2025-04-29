@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -17,7 +18,8 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [needsSetup, setNeedsSetup] = useState(false)
   const [checkingSetup, setCheckingSetup] = useState(true)
-  const { user, loading: authLoading } = useAuth()
+  const router = useRouter()
+  const { user, login, loading: authLoading } = useAuth()
 
   // Check if we need to set up the first admin
   useEffect(() => {
@@ -39,10 +41,9 @@ export default function LoginPage() {
   // Redirect to admin if already logged in
   useEffect(() => {
     if (user && !authLoading) {
-      console.log("User already logged in, redirecting to admin")
       window.location.href = "/admin"
     }
-  }, [user, authLoading])
+  }, [user, authLoading, router])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -50,24 +51,10 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      // Direct API call instead of using context
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error || "Login failed")
-      }
-
-      // Force a hard navigation to /admin
-      window.location.href = "/admin"
+      await login(email, password)
+      // The login function will handle the redirect
     } catch (error) {
       setError(error.message || "Login failed")
-    } finally {
       setIsLoading(false)
     }
   }
@@ -95,10 +82,7 @@ export default function LoginPage() {
           {needsSetup ? (
             <div className="text-center">
               <p className="mb-4">No admin account found. You need to create the first admin account.</p>
-              <Button
-                className="w-full bg-secondary hover:bg-secondary/90"
-                onClick={() => (window.location.href = "/admin/setup")}
-              >
+              <Button className="w-full bg-secondary hover:bg-secondary/90" onClick={() => router.push("/admin/setup")}>
                 Create Admin Account
               </Button>
             </div>

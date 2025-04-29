@@ -30,6 +30,7 @@ export async function POST(request) {
     }
 
     // Create token
+    const secret = process.env.JWT_SECRET || "your-secret-key"
     const token = sign(
       {
         id: user._id,
@@ -37,16 +38,18 @@ export async function POST(request) {
         name: user.name,
         isFirstAdmin: user.isFirstAdmin,
       },
-      process.env.JWT_SECRET || "your-secret-key",
+      secret,
       { expiresIn: "1d" },
     )
 
-    // Set cookie
-    cookies().set("auth_token", token, {
+    // Set cookie with proper options
+    const cookieStore = await cookies()
+    cookieStore.set("auth_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24, // 1 day
       path: "/",
+      sameSite: "lax",
     })
 
     return NextResponse.json({
@@ -58,6 +61,7 @@ export async function POST(request) {
       },
     })
   } catch (error) {
+    console.error("Login error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

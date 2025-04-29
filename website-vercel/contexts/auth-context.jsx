@@ -15,23 +15,13 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function loadUserFromSession() {
       try {
-        const res = await fetch("/api/auth/me", {
-          // Add cache: 'no-store' to prevent caching
-          cache: "no-store",
-          headers: {
-            // Add a cache-busting header
-            "x-cache-bust": Date.now().toString(),
-          },
-        })
-
+        const res = await fetch("/api/auth/me")
         if (res.ok) {
           const data = await res.json()
           setUser(data.user)
-          console.log("User loaded from session:", data.user)
         } else {
-          // Clear user if not authenticated
+          // Clear any invalid session state
           setUser(null)
-          console.log("Not authenticated, cleared user state")
         }
       } catch (error) {
         console.error("Failed to load user session:", error)
@@ -64,7 +54,7 @@ export function AuthProvider({ children }) {
         description: `Welcome back, ${data.user.name}!`,
       })
 
-      // Use window.location for a hard redirect
+      // Use window.location for a full page reload to ensure middleware re-evaluates
       window.location.href = "/admin"
       return true
     } catch (error) {
@@ -118,7 +108,7 @@ export function AuthProvider({ children }) {
       }
 
       setUser(null)
-      // Use window.location for a hard redirect
+      // Use window.location for a full page reload
       window.location.href = "/admin/login"
       toast.success("Logged out successfully")
     } catch (error) {

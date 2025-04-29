@@ -1,20 +1,30 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
+import { Loader2, Plus, Save, Trash2, UserPlus, Key } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { useAuth } from "@/contexts/auth-context"
 
 export default function AdminPage() {
-  const { user, logout, loading: authLoading } = useAuth()
-  const [isLoading, setIsLoading] = useState(true)
-  const [userData, setUserData] = useState(null)
-  const [error, setError] = useState(null)
-  const router = useRouter()
+  const { user, logout } = useAuth()
   const [activeTab, setActiveTab] = useState("menu-items")
   const [loading, setLoading] = useState(true)
   const [categories, setCategories] = useState([])
@@ -62,80 +72,9 @@ export default function AdminPage() {
 
   const [isAddingUser, setIsAddingUser] = useState(false)
   const [isChangingPassword, setIsChangingPassword] = useState(false)
-  const [authChecked, setAuthChecked] = useState(false)
-  const [isRedirecting, setIsRedirecting] = useState(false)
 
-  // Direct API call to check authentication status
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        console.log("Checking authentication status...")
-        const res = await fetch("/api/auth/me", {
-          cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache",
-            Pragma: "no-cache",
-            "x-timestamp": Date.now().toString(),
-          },
-        })
-
-        if (res.ok) {
-          const data = await res.json()
-          console.log("Auth check successful:", data)
-          setUserData(data.user)
-        } else {
-          console.log("Auth check failed:", res.status)
-          setError("Authentication failed. Please log in again.")
-          // Don't redirect here - we'll show an error message instead
-        }
-      } catch (err) {
-        console.error("Auth check error:", err)
-        setError("Error checking authentication. Please try again.")
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    checkAuth()
-  }, [])
-
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await logout()
-    } catch (error) {
-      console.error("Logout error:", error)
-      // Force redirect to login on logout error
-      window.location.href = "/admin/login"
-    }
-  }
-
-  // Check if user is authenticated
-  useEffect(() => {
-    let redirectTimer
-
-    if (!authLoading) {
-      if (!user) {
-        console.log("No user found after auth check, redirecting to login")
-        setIsRedirecting(true)
-        // Use a timeout to avoid immediate redirect which can cause loops
-        redirectTimer = setTimeout(() => {
-          window.location.href = "/admin/login"
-        }, 100)
-      } else {
-        setIsRedirecting(false)
-      }
-      setAuthChecked(true)
-    }
-
-    return () => clearTimeout(redirectTimer)
-  }, [user, authLoading])
-
-  // Fetch data once authenticated
   useEffect(() => {
     async function fetchData() {
-      if (!authChecked || !user) return
-
       try {
         setLoading(true)
 
@@ -174,8 +113,10 @@ export default function AdminPage() {
       }
     }
 
-    fetchData()
-  }, [user, authChecked])
+    if (user) {
+      fetchData()
+    }
+  }, [user])
 
   const handleCategoryChange = (e) => {
     const { name, value } = e.target
@@ -506,8 +447,7 @@ export default function AdminPage() {
     }
   }
 
-  // Show loading state
-  if (isLoading || authLoading) {
+  if (loading) {
     return (
       <div className="container mx-auto flex min-h-[400px] items-center justify-center px-4 py-12">
         <div className="text-center">
@@ -518,79 +458,531 @@ export default function AdminPage() {
     )
   }
 
-  // Show error state
-  if (error) {
-    return (
-      <div className="container mx-auto flex min-h-[400px] items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center text-red-500">Authentication Error</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="mb-4">{error}</p>
-            <Button
-              onClick={() => (window.location.href = "/admin/login")}
-              className="bg-secondary hover:bg-secondary/90"
-            >
-              Go to Login
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Show admin dashboard if authenticated
-  const authenticatedUser = userData || user
-
-  if (!authenticatedUser) {
-    return (
-      <div className="container mx-auto flex min-h-[400px] items-center justify-center px-4 py-12">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center text-red-500">Not Authenticated</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="mb-4">You need to log in to access the admin panel.</p>
-            <Button
-              onClick={() => (window.location.href = "/admin/login")}
-              className="bg-secondary hover:bg-secondary/90"
-            >
-              Go to Login
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Rest of your admin page component...
   return (
     <div className="container mx-auto px-4 py-12">
-      <Card>
-        <CardHeader>
-          <CardTitle>Admin Dashboard</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold">Welcome, {authenticatedUser.name}!</h2>
-            <p className="text-gray-600">You are logged in as: {authenticatedUser.email}</p>
-            <p className="text-gray-600">Role: {authenticatedUser.isFirstAdmin ? "Super Admin" : "Admin"}</p>
-          </div>
+      <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="mb-2 text-3xl font-bold text-gray-900">Admin Panel</h1>
+          <p className="text-gray-600">Manage your restaurant's menu, categories, and settings.</p>
+        </div>
+        <div className="mt-4 flex flex-col gap-2 md:mt-0 md:flex-row">
+          <Dialog open={isChangingPassword} onOpenChange={setIsChangingPassword}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="border-secondary text-secondary">
+                <Key className="mr-2 h-4 w-4" />
+                Change Password
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Change Password</DialogTitle>
+                <DialogDescription>Enter your current password and a new password below.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Input
+                    id="currentPassword"
+                    name="currentPassword"
+                    type="password"
+                    value={changePasswordData.currentPassword}
+                    onChange={handlePasswordChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input
+                    id="newPassword"
+                    name="newPassword"
+                    type="password"
+                    value={changePasswordData.newPassword}
+                    onChange={handlePasswordChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
+                  <Input
+                    id="confirmNewPassword"
+                    name="confirmNewPassword"
+                    type="password"
+                    value={changePasswordData.confirmNewPassword}
+                    onChange={handlePasswordChange}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsChangingPassword(false)}>
+                  Cancel
+                </Button>
+                <Button className="bg-secondary hover:bg-secondary/90" onClick={changePassword}>
+                  Change Password
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" className="border-red-600 text-red-600" onClick={logout}>
+            Logout
+          </Button>
+        </div>
+      </div>
 
-          <div className="flex justify-between">
-            <Button
-              onClick={() => (window.location.href = "/admin/dashboard")}
-              className="bg-secondary hover:bg-secondary/90"
-            >
-              Go to Full Dashboard
-            </Button>
-            <Button variant="outline" className="border-red-600 text-red-600" onClick={handleLogout}>
-              Logout
-            </Button>
+      <Tabs defaultValue="menu-items" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="menu-items">Menu Items</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+          {user?.isFirstAdmin && <TabsTrigger value="users">Users</TabsTrigger>}
+        </TabsList>
+
+        <TabsContent value="menu-items" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="md:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add Menu Item</CardTitle>
+                  <CardDescription>Create a new menu item to display on your website.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Item Name</Label>
+                      <Input id="name" name="name" value={newMenuItem.name} onChange={handleMenuItemChange} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="itemCode">Item Code</Label>
+                      <Input
+                        id="itemCode"
+                        name="itemCode"
+                        value={newMenuItem.itemCode}
+                        onChange={handleMenuItemChange}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        name="description"
+                        value={newMenuItem.description}
+                        onChange={handleMenuItemChange}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="price">Price ($)</Label>
+                      <Input
+                        id="price"
+                        name="price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={newMenuItem.price}
+                        onChange={handleMenuItemChange}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Select value={newMenuItem.category} onValueChange={handleCategorySelect}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category._id} value={category.id}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="image">Image URL</Label>
+                      <Input id="image" name="image" value={newMenuItem.image} onChange={handleMenuItemChange} />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="isAvailable"
+                        name="isAvailable"
+                        checked={newMenuItem.isAvailable}
+                        onChange={handleMenuItemChange}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <Label htmlFor="isAvailable">Available</Label>
+                    </div>
+                    <Button type="button" className="w-full bg-secondary hover:bg-secondary/90" onClick={addMenuItem}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Menu Item
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="md:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Menu Items</CardTitle>
+                  <CardDescription>Manage your existing menu items.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {menuItems.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Code</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Available</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {menuItems.map((item) => (
+                            <TableRow key={item._id}>
+                              <TableCell className="font-medium">{item.name}</TableCell>
+                              <TableCell>{item.itemCode}</TableCell>
+                              <TableCell>{item.category}</TableCell>
+                              <TableCell>${item.price.toFixed(2)}</TableCell>
+                              <TableCell>{item.isAvailable ? "Yes" : "No"}</TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-500"
+                                  onClick={() => deleteMenuItem(item._id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <p className="text-center text-gray-500">No menu items found.</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="categories" className="mt-6">
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="md:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add Category</CardTitle>
+                  <CardDescription>Create a new category for organizing menu items.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="id">Category ID</Label>
+                      <Input id="id" name="id" value={newCategory.id} onChange={handleCategoryChange} required />
+                      <p className="text-xs text-gray-500">
+                        Use lowercase letters, numbers, and hyphens only (e.g., "appetizers").
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Category Name</Label>
+                      <Input id="name" name="name" value={newCategory.name} onChange={handleCategoryChange} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="order">Display Order</Label>
+                      <Input
+                        id="order"
+                        name="order"
+                        type="number"
+                        min="0"
+                        value={newCategory.order}
+                        onChange={handleCategoryChange}
+                      />
+                    </div>
+                    <Button type="button" className="w-full bg-secondary hover:bg-secondary/90" onClick={addCategory}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Category
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="md:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Categories</CardTitle>
+                  <CardDescription>Manage your existing categories.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {categories.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>ID</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Order</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {categories.map((category) => (
+                            <TableRow key={category._id}>
+                              <TableCell className="font-medium">{category.id}</TableCell>
+                              <TableCell>{category.name}</TableCell>
+                              <TableCell>{category.order}</TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-500"
+                                  onClick={() => deleteCategory(category._id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <p className="text-center text-gray-500">No categories found.</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Restaurant Settings</CardTitle>
+              <CardDescription>Configure your restaurant's information and order settings.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="restaurantName">Restaurant Name</Label>
+                    <Input
+                      id="restaurantName"
+                      name="restaurantName"
+                      value={settings.restaurantName}
+                      onChange={handleSettingsChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Input
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={settings.phoneNumber}
+                      onChange={handleSettingsChange}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input id="address" name="address" value={settings.address} onChange={handleSettingsChange} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="openingHours">Opening Hours</Label>
+                  <Input
+                    id="openingHours"
+                    name="openingHours"
+                    value={settings.openingHours}
+                    onChange={handleSettingsChange}
+                  />
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="taxPercentage">Tax Percentage (%)</Label>
+                    <Input
+                      id="taxPercentage"
+                      name="taxPercentage"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={settings.taxPercentage}
+                      onChange={handleSettingsChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="deliveryFee">Delivery Fee ($)</Label>
+                    <Input
+                      id="deliveryFee"
+                      name="deliveryFee"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={settings.deliveryFee}
+                      onChange={handleSettingsChange}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="serviceCharge">Service Charge ($)</Label>
+                    <Input
+                      id="serviceCharge"
+                      name="serviceCharge"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={settings.serviceCharge}
+                      onChange={handleSettingsChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="minimumOrderAmount">Minimum Order Amount ($)</Label>
+                    <Input
+                      id="minimumOrderAmount"
+                      name="minimumOrderAmount"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={settings.minimumOrderAmount}
+                      onChange={handleSettingsChange}
+                    />
+                  </div>
+                </div>
+                <Button type="button" className="bg-secondary hover:bg-secondary/90" onClick={saveSettings}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Settings
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {user?.isFirstAdmin && (
+          <TabsContent value="users" className="mt-6">
+            <div className="grid gap-6 md:grid-cols-3">
+              <div className="md:col-span-1">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>User Management</CardTitle>
+                    <CardDescription>Create and manage admin users.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Dialog open={isAddingUser} onOpenChange={setIsAddingUser}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full bg-secondary hover:bg-secondary/90">
+                          <UserPlus className="mr-2 h-4 w-4" />
+                          Add New User
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Add New User</DialogTitle>
+                          <DialogDescription>Create a new admin user for the restaurant.</DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="name">Full Name</Label>
+                            <Input id="name" name="name" value={newUser.name} onChange={handleUserChange} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                              id="email"
+                              name="email"
+                              type="email"
+                              value={newUser.email}
+                              onChange={handleUserChange}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input
+                              id="password"
+                              name="password"
+                              type="password"
+                              value={newUser.password}
+                              onChange={handleUserChange}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="confirmPassword">Confirm Password</Label>
+                            <Input
+                              id="confirmPassword"
+                              name="confirmPassword"
+                              type="password"
+                              value={newUser.confirmPassword}
+                              onChange={handleUserChange}
+                            />
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setIsAddingUser(false)}>
+                            Cancel
+                          </Button>
+                          <Button className="bg-secondary hover:bg-secondary/90" onClick={addUser}>
+                            Add User
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </CardContent>
+                </Card>
+              </div>
+              <div className="md:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Admin Users</CardTitle>
+                    <CardDescription>Manage existing admin users.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {users.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Name</TableHead>
+                              <TableHead>Email</TableHead>
+                              <TableHead>Role</TableHead>
+                              <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {users.map((user) => (
+                              <TableRow key={user._id}>
+                                <TableCell className="font-medium">{user.name}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>{user.isFirstAdmin ? "Super Admin" : "Admin"}</TableCell>
+                                <TableCell className="text-right">
+                                  {!user.isFirstAdmin && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-red-500"
+                                      onClick={() => deleteUser(user._id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <p className="text-center text-gray-500">No users found.</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        )}
+      </Tabs>
     </div>
   )
 }
