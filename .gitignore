@@ -3,3 +3,4 @@ node_modules/
 build/
 ios/Pods/
 android/.gradle/
+mobileVercel/vendor/
