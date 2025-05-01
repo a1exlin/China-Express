@@ -37,7 +37,7 @@ export default function AboutPage() {
         <h1 className="mb-2 text-3xl font-bold text-gray-900">About Us</h1>
         <div className="mx-auto mb-4 h-1 w-20 bg-secondary"></div>
         <p className="mx-auto max-w-2xl text-gray-600">
-          Learn more about {settings.restaurantName} and our commitment to authentic Chinese cuisine.
+          Learn more about {settings.restaurantName} and our commitment to New York Style Chinese cuisine.
         </p>
       </div>
 
@@ -45,8 +45,8 @@ export default function AboutPage() {
         <div>
           <h2 className="mb-4 text-2xl font-semibold text-gray-900">Our Story</h2>
           <p className="mb-4 text-gray-700">
-            {settings.restaurantName} was founded in 2005 by Chef Li Wei, who brought his family's traditional recipes
-            from Sichuan Province to create an authentic Chinese dining experience.
+            {settings.restaurantName} was founded in 2005 by Chef Richard Lin, who brought over the New York Style Chinese recipes
+            to create an incredible takeout and dining experience for the community.
           </p>
           <p className="mb-4 text-gray-700">
             What started as a small takeout restaurant has grown into a beloved establishment in the community, known
@@ -54,7 +54,7 @@ export default function AboutPage() {
           </p>
           <p className="text-gray-700">
             Our mission is to share the rich culinary heritage of China through carefully crafted dishes that balance
-            authentic flavors with modern presentation, creating a memorable dining experience for all our customers.
+            authentic flavors with New York influenced recipes, creating a memorable takeout and dining experience for all our customers.
           </p>
         </div>
         <div className="relative h-[300px] overflow-hidden rounded-lg md:h-auto">
@@ -68,37 +68,37 @@ export default function AboutPage() {
           <div className="text-center">
             <div className="mx-auto mb-4 h-40 w-40 overflow-hidden rounded-full">
               <div className="relative h-full w-full">
-                <Image src="/placeholder.svg?height=160&width=160" alt="Chef Li Wei" fill className="object-cover" />
+                <Image src="/placeholder.svg?height=160&width=160" alt="Chef Richard Lin" fill className="object-cover" />
               </div>
             </div>
-            <h3 className="mb-1 text-xl font-medium">Chef Li Wei</h3>
+            <h3 className="mb-1 text-xl font-medium">Chef Richard Lin</h3>
             <p className="mb-2 text-secondary">Founder & Head Chef</p>
             <p className="text-sm text-gray-600">
-              With over 30 years of culinary experience, Chef Li brings authentic Sichuan flavors to every dish.
+              With over 30 years of culinary experience, Chef Richard brings delicious and savory flavors to every dish.
             </p>
           </div>
           <div className="text-center">
             <div className="mx-auto mb-4 h-40 w-40 overflow-hidden rounded-full">
               <div className="relative h-full w-full">
-                <Image src="/placeholder.svg?height=160&width=160" alt="Sarah Chen" fill className="object-cover" />
+                <Image src="/placeholder.svg?height=160&width=160" alt="Amy Lin" fill className="object-cover" />
               </div>
             </div>
-            <h3 className="mb-1 text-xl font-medium">Sarah Chen</h3>
+            <h3 className="mb-1 text-xl font-medium">Amy Lin</h3>
             <p className="mb-2 text-secondary">Restaurant Manager</p>
             <p className="text-sm text-gray-600">
-              Sarah ensures that every customer has an exceptional dining experience from start to finish.
+              Amy ensures that every customer has an exceptional takeout and dining experience from start to finish.
             </p>
           </div>
           <div className="text-center">
             <div className="mx-auto mb-4 h-40 w-40 overflow-hidden rounded-full">
               <div className="relative h-full w-full">
-                <Image src="/placeholder.svg?height=160&width=160" alt="David Wong" fill className="object-cover" />
+                <Image src="/placeholder.svg?height=160&width=160" alt="Danny Lin" fill className="object-cover" />
               </div>
             </div>
-            <h3 className="mb-1 text-xl font-medium">David Wong</h3>
+            <h3 className="mb-1 text-xl font-medium">Danny Lin</h3>
             <p className="mb-2 text-secondary">Sous Chef</p>
             <p className="text-sm text-gray-600">
-              David specializes in dim sum and traditional Cantonese cuisine, adding variety to our menu.
+              Sous Chef Danny specializes in rice cooking and other New York Style cuisine, adding variety to our menu.
             </p>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default function AboutPage() {
             </div>
             <h3 className="mb-2 text-lg font-medium">Authenticity</h3>
             <p className="text-sm text-gray-600">
-              We stay true to traditional recipes and cooking techniques to deliver authentic Chinese flavors.
+              We stay true to traditional recipes and cooking techniques to deliver New York Style Chinese flavors.
             </p>
           </div>
           <div className="text-center">
