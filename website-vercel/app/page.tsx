@@ -10,8 +10,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import FeaturedDishes from "@/components/featured-dishes"
 import HeroSection from "@/components/hero-section"
 
+type Settings = {
+  restaurantName: string
+  phoneNumber: string
+  address: string
+  openingHours: string
+}
+
 export default function Home() {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<Settings>({
     restaurantName: "China Express",
     phoneNumber: "(555) 123-4567",
     address: "123 Main Street, Anytown",

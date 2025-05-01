@@ -4,7 +4,19 @@ import { ArrowRight } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
-export default function HeroSection() {
+type Settings = {
+  restaurantName: string
+  phoneNumber: string
+  address: string
+  openingHours: string
+}
+
+type Props = {
+  settings: Settings
+}
+
+
+export default function HeroSection({ settings }: Props) {
   return (
     <section className="relative bg-black text-white">
       <div className="absolute inset-0 z-0">
