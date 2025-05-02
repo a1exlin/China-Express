@@ -101,14 +101,14 @@ export default function ContactPage() {
                 <MapPin className="mt-1 h-5 w-5 text-secondary" />
                 <div>
                   <h3 className="font-medium">Address</h3>
-                  <p className="text-sm text-gray-600">123 Main Street, Anytown, ST 12345</p>
+                  <p className="text-sm text-gray-600">1075 Fairburn Rd SW, Unit 105, Atlanta, GA 30331</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Phone className="mt-1 h-5 w-5 text-secondary" />
                 <div>
                   <h3 className="font-medium">Phone</h3>
-                  <p className="text-sm text-gray-600">(555) 123-4567</p>
+                  <p className="text-sm text-gray-600">(404) 691-9728</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -122,7 +122,9 @@ export default function ContactPage() {
                 <Clock className="mt-1 h-5 w-5 text-secondary" />
                 <div>
                   <h3 className="font-medium">Hours of Operation</h3>
-                  <p className="text-sm text-gray-600">Monday - Sunday: 11:00 AM - 10:00 PM</p>
+                  <p className="text-sm text-gray-600">Monday - Thursday: 11:00 AM - 9:00 PM</p>
+                  <p className="text-sm text-gray-600">Friday - Saturday: 11:00 AM - 9:30 PM</p>
+                  <p className="text-sm text-gray-600">Sunday: Closed</p>
                 </div>
               </div>
             </CardContent>
