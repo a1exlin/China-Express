@@ -12,3 +12,12 @@ npx @react-native-community/cli init MyApp
 ## Other app commands 
 website: npm run dev
 desktop: npm run start 
+
+
+## Website Features
+
+## Mobile App Features
+
+## Desktop Features
+
+##Screenshots
