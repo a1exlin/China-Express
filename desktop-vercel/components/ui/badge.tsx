@@ -1,75 +1,36 @@
-import type React from "react"
-import { StyleSheet, View, Text } from "react-native"
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
-type BadgeVariant = "default" | "primary" | "secondary" | "success" | "warning" | "danger" | "outline"
+import { cn } from "@/lib/utils"
 
-interface BadgeProps {
-  children: React.ReactNode
-  variant?: BadgeVariant
-  style?: any
-}
+const badgeVariants = cva(
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
-export function Badge({ children, variant = "default", style }: BadgeProps) {
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {}
+
+function Badge({ className, variant, ...props }: BadgeProps) {
   return (
-    <View style={[styles.badge, styles[`badge_${variant}`], style]}>
-      <Text style={[styles.text, styles[`text_${variant}`]]}>{children}</Text>
-    </View>
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
   )
 }
 
-const styles = StyleSheet.create({
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-    alignSelf: "flex-start",
-  },
-  badge_default: {
-    backgroundColor: "#e5e7eb",
-  },
-  badge_primary: {
-    backgroundColor: "#c34428",
-  },
-  badge_secondary: {
-    backgroundColor: "#f59e0b",
-  },
-  badge_success: {
-    backgroundColor: "#10b981",
-  },
-  badge_warning: {
-    backgroundColor: "#f59e0b",
-  },
-  badge_danger: {
-    backgroundColor: "#ef4444",
-  },
-  badge_outline: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-  },
-  text: {
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  text_default: {
-    color: "#374151",
-  },
-  text_primary: {
-    color: "#fff",
-  },
-  text_secondary: {
-    color: "#fff",
-  },
-  text_success: {
-    color: "#fff",
-  },
-  text_warning: {
-    color: "#fff",
-  },
-  text_danger: {
-    color: "#fff",
-  },
-  text_outline: {
-    color: "#374151",
-  },
-})
+export { Badge, badgeVariants }

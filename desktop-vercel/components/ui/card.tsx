@@ -1,94 +1,79 @@
-import type React from "react"
-import { StyleSheet, View, Text } from "react-native"
+import * as React from "react"
 
-interface CardProps {
-  children: React.ReactNode
-  style?: any
-}
+import { cn } from "@/lib/utils"
 
-export function Card({ children, style }: CardProps) {
-  return <View style={[styles.card, style]}>{children}</View>
-}
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      className
+    )}
+    {...props}
+  />
+))
+Card.displayName = "Card"
 
-interface CardHeaderProps {
-  children: React.ReactNode
-  style?: any
-}
+const CardHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    {...props}
+  />
+))
+CardHeader.displayName = "CardHeader"
 
-export function CardHeader({ children, style }: CardHeaderProps) {
-  return <View style={[styles.header, style]}>{children}</View>
-}
+const CardTitle = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "text-2xl font-semibold leading-none tracking-tight",
+      className
+    )}
+    {...props}
+  />
+))
+CardTitle.displayName = "CardTitle"
 
-interface CardTitleProps {
-  children: React.ReactNode
-  style?: any
-}
+const CardDescription = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+CardDescription.displayName = "CardDescription"
 
-export function CardTitle({ children, style }: CardTitleProps) {
-  return <Text style={[styles.title, style]}>{children}</Text>
-}
+const CardContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+))
+CardContent.displayName = "CardContent"
 
-interface CardDescriptionProps {
-  children: React.ReactNode
-  style?: any
-}
+const CardFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center p-6 pt-0", className)}
+    {...props}
+  />
+))
+CardFooter.displayName = "CardFooter"
 
-export function CardDescription({ children, style }: CardDescriptionProps) {
-  return <Text style={[styles.description, style]}>{children}</Text>
-}
-
-interface CardContentProps {
-  children: React.ReactNode
-  style?: any
-}
-
-export function CardContent({ children, style }: CardContentProps) {
-  return <View style={[styles.content, style]}>{children}</View>
-}
-
-interface CardFooterProps {
-  children: React.ReactNode
-  style?: any
-}
-
-export function CardFooter({ children, style }: CardFooterProps) {
-  return <View style={[styles.footer, style]}>{children}</View>
-}
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  header: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111",
-  },
-  description: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
-  },
-  content: {
-    padding: 16,
-  },
-  footer: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-  },
-})
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
