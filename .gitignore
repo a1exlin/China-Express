@@ -5,4 +5,4 @@ ios/Pods/
 android/.gradle/
 mobileVercel/vendor/
 website-vercel/lib/serviceAccountKey.json
-desktop-vercel/.next/
+r.next/
