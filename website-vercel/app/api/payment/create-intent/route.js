@@ -1,6 +1,9 @@
 import Stripe from "stripe"
 import { NextResponse } from "next/server"
 
+// Make sure to set NEXT_PUBLIC_SITE_URL in your environment variables
+// This should be the full URL of your site, e.g. https://your-restaurant.vercel.app
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
 })

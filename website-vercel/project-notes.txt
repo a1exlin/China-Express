@@ -1,0 +1,27 @@
+These are just my own project notes, to help keep track of what needs to be fixed/added/worked own
+
+1. Streamline page routing and navbar--we dont need the order online button to go to the cart if theres already a cart icon in the navbar in the first place.  Either remove the button or have it take you to the menu
+    Idea actually..Take the current /menu, move it to /order, build on that-replace /menu with a more static page that simply shows a view of the current physical menu but converted into an easier to read version.  Easy on mobile as well-IMPORTANT
+
+
+
+
+2. Just testing needs to be done.  Need to test every feature of the website still
+
+3. Need to get site photos imported.  Site needs to be hauled with real text on each info page with words from the store owners
+
+4. Update the ordering menu a bit with styling.  I feel like its too cumbersome to have such few number of category tabs
+    IDEA- have category sub dropdowns like in lunch dishes you might have different drop downs for differnt chicken dishes, or steak dishes, etc..
+        Need to look at actual menu to determin if this is even a real issue.
+
+
+
+5. Would love to have external testing from people that arent involved in the website
+
+
+
+6, just make sure everything shows up in the database and can be easily manipulated from there with the POS system
+
+7.  Need to actuall remove all hints of delivery service provided by the store.  Store does not offer direct delivery, only through ubereats etc
+
+8. Possible restructure of order tracking

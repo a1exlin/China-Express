@@ -6,8 +6,26 @@ import { getStripe } from "@/lib/stripe"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 
+interface StripePaymentWrapperProps {
+  clientSecret: string
+  onPaymentSuccess: (paymentIntent: any) => void
+  onPaymentError: (error: any) => void
+  amount: number
+}
+
+interface StripePaymentFormProps {
+  onPaymentSuccess: (paymentIntent: any) => void
+  onPaymentError: (error: any) => void
+  amount: number
+}
+
 // Wrapper component that provides Stripe Elements
-export function StripePaymentWrapper({ clientSecret, onPaymentSuccess, onPaymentError, amount }) {
+export function StripePaymentWrapper({
+  clientSecret,
+  onPaymentSuccess,
+  onPaymentError,
+  amount,
+}: StripePaymentWrapperProps) {
   if (!clientSecret) return null
 
   return (
@@ -18,7 +36,7 @@ export function StripePaymentWrapper({ clientSecret, onPaymentSuccess, onPayment
 }
 
 // The actual payment form with Stripe Elements - no longer using a form element
-function StripePaymentForm({ onPaymentSuccess, onPaymentError, amount }) {
+function StripePaymentForm({ onPaymentSuccess, onPaymentError, amount }: StripePaymentFormProps) {
   const stripe = useStripe()
   const elements = useElements()
   const [isLoading, setIsLoading] = useState(false)
@@ -33,11 +51,22 @@ function StripePaymentForm({ onPaymentSuccess, onPaymentError, amount }) {
     setErrorMessage("")
 
     try {
+      // First, submit the elements form - this is required before creating/confirming payment
+      const { error: submitError } = await elements.submit()
+
+      if (submitError) {
+        setErrorMessage(submitError.message || "An error occurred with your payment form")
+        onPaymentError(submitError)
+        setIsLoading(false)
+        return
+      }
+
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         redirect: "if_required",
         confirmParams: {
-          return_url: 'http://localhost:3000/checkout',
+          // Include payment_intent and redirect_status in the return URL
+          return_url: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/checkout`,
         },
       })
 

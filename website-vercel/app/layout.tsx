@@ -1,3 +1,4 @@
+import type React from "react"
 import { Inter } from "next/font/google"
 import Link from "next/link"
 import { Home, Menu, ShoppingCart, User, MapPin } from "lucide-react"
@@ -21,7 +22,11 @@ export const metadata = {
   generator: "v0.dev",
 }
 
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
