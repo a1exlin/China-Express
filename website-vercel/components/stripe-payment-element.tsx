@@ -4,20 +4,10 @@ import { useState } from "react"
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { getStripe } from "@/lib/stripe"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "@/components/icons"
-
-interface PaymentFormProps {
-  onPaymentSuccess: (paymentIntent: any) => void
-  onPaymentError: (error: any) => void
-  amount: number
-}
-
-interface PaymentWrapperProps extends PaymentFormProps {
-  clientSecret: string
-}
+import { Loader2 } from "lucide-react"
 
 // Wrapper component that provides Stripe Elements
-export function StripePaymentWrapper({ clientSecret, onPaymentSuccess, onPaymentError, amount }: PaymentWrapperProps) {
+export function StripePaymentWrapper({ clientSecret, onPaymentSuccess, onPaymentError, amount }) {
   if (!clientSecret) return null
 
   return (
@@ -28,7 +18,7 @@ export function StripePaymentWrapper({ clientSecret, onPaymentSuccess, onPayment
 }
 
 // The actual payment form with Stripe Elements - no longer using a form element
-function StripePaymentForm({ onPaymentSuccess, onPaymentError, amount }: PaymentFormProps) {
+function StripePaymentForm({ onPaymentSuccess, onPaymentError, amount }) {
   const stripe = useStripe()
   const elements = useElements()
   const [isLoading, setIsLoading] = useState(false)
@@ -46,6 +36,9 @@ function StripePaymentForm({ onPaymentSuccess, onPaymentError, amount }: Payment
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         redirect: "if_required",
+        confirmParams: {
+          return_url: 'http://localhost:3000/checkout',
+        },
       })
 
       if (error) {

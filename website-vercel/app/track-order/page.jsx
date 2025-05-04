@@ -2,76 +2,179 @@
 
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
-import { format } from "date-fns"
+import { Loader2, CheckCircle2, Clock, ChefHat, Package, Truck, XCircle } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Loader2, Clock, Check } from "@/components/icons"
 
 export default function TrackOrderPage() {
   const searchParams = useSearchParams()
-  const orderId = searchParams.get("id")
+  const initialOrderId = searchParams.get("id") || ""
 
+  const [orderNumber, setOrderNumber] = useState(initialOrderId)
   const [order, setOrder] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [orderIdInput, setOrderIdInput] = useState(orderId || "")
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
   useEffect(() => {
-    if (orderId) {
-      fetchOrder(orderId)
+    if (initialOrderId) {
+      trackOrder(initialOrderId)
     }
-  }, [orderId])
+  }, [initialOrderId])
 
-  const fetchOrder = async (id) => {
-    setIsLoading(true)
+  const trackOrder = async (id = orderNumber) => {
+    if (!id) {
+      setError("Please enter an order number")
+      return
+    }
+
+    setLoading(true)
     setError("")
 
     try {
-      const res = await fetch(`/api/orders/${id}`)
+      const response = await fetch(`/api/orders/${id}`)
 
-      if (!res.ok) {
+      if (!response.ok) {
         throw new Error("Order not found")
       }
 
-      const data = await res.json()
+      const data = await response.json()
       setOrder(data)
     } catch (error) {
-      console.error("Error fetching order:", error)
-      setError("Order not found. Please check the order ID and try again.")
-      toast.error("Failed to find order", {
-        description: "Please check the order ID and try again.",
+      console.error("Error tracking order:", error)
+      setError("Order not found. Please check your order number and try again.")
+      toast.error("Order not found", {
+        description: "Please check your order number and try again.",
       })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (!orderIdInput.trim()) {
-      setError("Please enter an order ID")
-      return
-    }
-    fetchOrder(orderIdInput)
+    trackOrder()
   }
 
-  const getStatusStep = (status) => {
+  const getStatusIcon = (status) => {
     switch (status) {
       case "pending":
-        return 1
-      case "processing":
-        return 2
-      case "completed":
-        return 3
+        return <Clock className="h-8 w-8 text-gray-500" />
+      case "confirmed":
+        return <CheckCircle2 className="h-8 w-8 text-blue-500" />
+      case "preparing":
+        return <ChefHat className="h-8 w-8 text-yellow-500" />
+      case "ready":
+        return <Package className="h-8 w-8 text-green-500" />
+      case "out-for-delivery":
+        return <Truck className="h-8 w-8 text-purple-500" />
+      case "delivered":
+        return <CheckCircle2 className="h-8 w-8 text-green-600" />
       case "cancelled":
-        return -1
+        return <XCircle className="h-8 w-8 text-red-500" />
       default:
-        return 0
+        return <Clock className="h-8 w-8 text-gray-500" />
     }
+  }
+
+  const getStatusText = (status, orderType) => {
+    if (orderType === "pickup") {
+      switch (status) {
+        case "pending":
+          return "Order Received"
+        case "confirmed":
+          return "Order Confirmed"
+        case "preparing":
+          return "Preparing Your Order"
+        case "ready":
+          return "Ready for Pickup"
+        case "out-for-delivery": // This shouldn't happen for pickup, but just in case
+          return "Ready for Pickup"
+        case "delivered":
+          return "Order Completed"
+        case "cancelled":
+          return "Cancelled"
+        default:
+          return "Unknown Status"
+      }
+    } else {
+      switch (status) {
+        case "pending":
+          return "Order Received"
+        case "confirmed":
+          return "Order Confirmed"
+        case "preparing":
+          return "Preparing Your Order"
+        case "ready":
+          return "Ready for Delivery"
+        case "out-for-delivery":
+          return "Out for Delivery"
+        case "delivered":
+          return "Delivered"
+        case "cancelled":
+          return "Cancelled"
+        default:
+          return "Unknown Status"
+      }
+    }
+  }
+
+  const getStatusDescription = (status, orderType) => {
+    if (orderType === "pickup") {
+      switch (status) {
+        case "pending":
+          return "We've received your order and are processing it."
+        case "confirmed":
+          return "Your order has been confirmed and will be prepared soon."
+        case "preparing":
+          return "Our chefs are preparing your delicious meal."
+        case "ready":
+          return "Your order is ready for pickup at our restaurant."
+        case "out-for-delivery": // This shouldn't happen for pickup, but just in case
+          return "Your order is ready for pickup at our restaurant."
+        case "delivered":
+          return "Your order has been picked up. Enjoy your meal!"
+        case "cancelled":
+          return "Your order has been cancelled."
+        default:
+          return "Status information unavailable."
+      }
+    } else {
+      switch (status) {
+        case "pending":
+          return "We've received your order and are processing it."
+        case "confirmed":
+          return "Your order has been confirmed and will be prepared soon."
+        case "preparing":
+          return "Our chefs are preparing your delicious meal."
+        case "ready":
+          return "Your order is ready and will be out for delivery soon."
+        case "out-for-delivery":
+          return "Your order is on its way to you."
+        case "delivered":
+          return "Your order has been delivered. Enjoy your meal!"
+        case "cancelled":
+          return "Your order has been cancelled."
+        default:
+          return "Status information unavailable."
+      }
+    }
+  }
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    }).format(date)
   }
 
   return (
@@ -79,138 +182,106 @@ export default function TrackOrderPage() {
       <div className="mb-10 text-center">
         <h1 className="mb-2 text-3xl font-bold text-gray-900">Track Your Order</h1>
         <div className="mx-auto mb-4 h-1 w-20 bg-secondary"></div>
-        <p className="mx-auto max-w-2xl text-gray-600">Enter your order ID to track the status of your order.</p>
+        <p className="mx-auto max-w-2xl text-gray-600">Enter your order number to check the status of your order.</p>
       </div>
 
       <div className="mx-auto max-w-3xl">
-        <Card className="mb-8">
+        <Card>
           <CardHeader>
-            <CardTitle>Find Your Order</CardTitle>
-            <CardDescription>Enter the order ID you received in your confirmation email.</CardDescription>
+            <CardTitle>Order Tracking</CardTitle>
+            <CardDescription>Enter your order number to track your order status.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="flex gap-4">
-              <Input
-                placeholder="Enter order ID"
-                value={orderIdInput}
-                onChange={(e) => setOrderIdInput(e.target.value)}
-                className="flex-1"
-              />
-              <Button type="submit" className="bg-secondary hover:bg-secondary/90" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Track Order
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:flex-row">
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="orderNumber">Order Number</Label>
+                <Input
+                  id="orderNumber"
+                  placeholder="e.g. ORD-123456-7890"
+                  value={orderNumber}
+                  onChange={(e) => setOrderNumber(e.target.value)}
+                />
+              </div>
+              <Button type="submit" className="mt-6 bg-secondary hover:bg-secondary/90 sm:mt-8" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Tracking...
+                  </>
+                ) : (
+                  "Track Order"
+                )}
               </Button>
             </form>
-            {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
-          </CardContent>
-        </Card>
 
-        {isLoading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-secondary" />
-          </div>
-        ) : order ? (
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                <div>
-                  <CardTitle>Order #{order._id.slice(-6)}</CardTitle>
-                  <CardDescription>
-                    Placed on {format(new Date(order.createdAt), "MMMM d, yyyy 'at' h:mm a")}
-                  </CardDescription>
-                </div>
-                <div className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium capitalize">{order.status}</div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              {order.status !== "cancelled" &&
-                (
-                  <div className="space-y-6">
-                  <h3 className="text-lg font-medium">Order Status</h3>
-                  <div className="relative">
-                    <div className="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-gray-200"></div>
-                    <div
-                      className="absolute left-0 top-1/2 h-0.5 -translate-y-1/2 bg-secondary transition-all"
-                      style={{
-                        width: `${
-                          order.status === "cancelled"
-                            ? "0%"
-                            : `${Math.max(0, (getStatusStep(order.status) - 1) * 50)}%`
-                        }`,
-                      }}
-                    ></div>
-                    <div className="relative flex justify-between">
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`z-10 flex h-8 w-8 items-center justify-center rounded-full ${
-                            getStatusStep(order.status) >= 1
-                              ? "bg-secondary text-white"\
-                              : "  >= 1
-                              ? "bg-secondary text-white"
-                              : "bg-gray-200 text-gray-500"
-                          }`}
-                        >
-                          {getStatusStep(order.status) >= 1 ? (
-                            <Check className="h-4 w-4" />
-                          ) : (
-                            <span>1</span>
-                          )}
-                        </div>
-                        <span className="mt-2 text-sm">Order Placed</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`z-10 flex h-8 w-8 items-center justify-center rounded-full ${
-                            getStatusStep(order.status) >= 2
-                              ? "bg-secondary text-white"
-                              : "bg-gray-200 text-gray-500"
-                          }`}
-                        >
-                          {getStatusStep(order.status) >= 2 ? (
-                            <Check className="h-4 w-4" />
-                          ) : (
-                            <span>2</span>
-                          )}
-                        </div>
-                        <span className="mt-2 text-sm">Preparing</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`z-10 flex h-8 w-8 items-center justify-center rounded-full ${
-                            getStatusStep(order.status) >= 3
-                              ? "bg-secondary text-white"
-                              : "bg-gray-200 text-gray-500"
-                          }`}
-                        >
-                          {getStatusStep(order.status) >= 3 ? (
-                            <Check className="h-4 w-4" />
-                          ) : (
-                            <span>3</span>
-                          )}
-                        </div>
-                        <span className="mt-2 text-sm">Completed</span>
-                      </div>
+            {error && <div className="mt-4 rounded-md bg-red-50 p-4 text-sm text-red-500">{error}</div>}
+
+            {order && (
+              <div className="mt-8">
+                <div className="rounded-lg bg-gray-50 p-4">
+                  <div className="flex flex-col justify-between gap-4 sm:flex-row">
+                    <div>
+                      <h3 className="font-medium">Order #{order.orderNumber}</h3>
+                      <p className="text-sm text-gray-500">Placed on {formatDate(order.createdAt)}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-flex items-center rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
+                        {order.orderType === "delivery" ? "Delivery" : "Pickup"}
+                      </span>
                     </div>
                   </div>
                 </div>
-                )}
 
-              <div>
-                <h3 className="mb-4 text-lg font-medium">Order Details</h3>
-                <div className="rounded-md border">
-                  <div className="divide-y">
-                    {order.items.map((item, index) => (
-                      <div key={index} className="flex justify-between p-4">
-                        <div>
-                          <span className="font-medium">{item.quantity}x </span>
-                          {item.name}
+                <div className="mt-6">
+                  <h3 className="mb-4 font-medium">Order Status</h3>
+                  <div className="relative">
+                    <div className="absolute left-4 top-0 h-full w-0.5 bg-gray-200"></div>
+                    <div className="space-y-8">
+                      <div className="relative flex items-start gap-4 pb-2">
+                        <div className="absolute left-4 top-4 h-full w-0.5 bg-gray-200"></div>
+                        <div className="z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white">
+                          {getStatusIcon(order.status)}
                         </div>
-                        <div className="font-medium">${(item.price * item.quantity).toFixed(2)}</div>
+                        <div className="flex-1 pt-1">
+                          <h4 className="font-medium">{getStatusText(order.status, order.orderType)}</h4>
+                          <p className="text-sm text-gray-600">{getStatusDescription(order.status, order.orderType)}</p>
+                          <p className="mt-1 text-xs text-gray-500">
+                            {order.updatedAt && `Updated: ${formatDate(order.updatedAt)}`}
+                          </p>
+                        </div>
+                      </div>
+
+                      {order.estimatedDeliveryTime && order.status !== "delivered" && order.status !== "cancelled" && (
+                        <div className="relative flex items-start gap-4">
+                          <div className="z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white">
+                            <Clock className="h-8 w-8 text-gray-400" />
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <h4 className="font-medium">
+                              Estimated {order.orderType === "delivery" ? "Delivery" : "Pickup"}
+                            </h4>
+                            <p className="text-sm text-gray-600">{formatDate(order.estimatedDeliveryTime)}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                <div>
+                  <h3 className="mb-4 font-medium">Order Details</h3>
+                  <div className="space-y-4">
+                    {order.items.map((item, index) => (
+                      <div key={index} className="flex justify-between">
+                        <span>
+                          {item.quantity}x {item.name}
+                        </span>
+                        <span>${(item.price * item.quantity).toFixed(2)}</span>
                       </div>
                     ))}
-                  </div>
-                  <Separator />
-                  <div className="space-y-2 p-4">
+                    <Separator />
                     <div className="flex justify-between">
                       <span>Subtotal</span>
                       <span>${order.subtotal.toFixed(2)}</span>
@@ -219,7 +290,7 @@ export default function TrackOrderPage() {
                       <span>Tax</span>
                       <span>${order.tax.toFixed(2)}</span>
                     </div>
-                    {order.deliveryFee > 0 && (
+                    {order.orderType === "delivery" && (
                       <div className="flex justify-between">
                         <span>Delivery Fee</span>
                         <span>${order.deliveryFee.toFixed(2)}</span>
@@ -232,54 +303,35 @@ export default function TrackOrderPage() {
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="grid gap-6 md:grid-cols-2">
-                <div>
-                  <h3 className="mb-2 text-lg font-medium">Customer Information</h3>
-                  <div className="rounded-md border p-4">
-                    <p className="font-medium">{order.customerName}</p>
-                    <p>{order.customerEmail}</p>
-                    <p>{order.customerPhone}</p>
-                  </div>
-                </div>
                 {order.orderType === "delivery" && order.address && (
-                  <div>
-                    <h3 className="mb-2 text-lg font-medium">Delivery Address</h3>
-                    <div className="rounded-md border p-4">
-                      <p>{order.address.street}</p>
-                      <p>
-                        {order.address.city}, {order.address.state} {order.address.zipCode}
+                  <>
+                    <Separator className="my-6" />
+                    <div>
+                      <h3 className="mb-2 font-medium">Delivery Address</h3>
+                      <p className="text-sm text-gray-600">
+                        {order.address.street}, {order.address.city}, {order.address.state} {order.address.zipCode}
                       </p>
                     </div>
-                  </div>
+                  </>
+                )}
+
+                {order.notes && (
+                  <>
+                    <Separator className="my-6" />
+                    <div>
+                      <h3 className="mb-2 font-medium">Order Notes</h3>
+                      <p className="text-sm text-gray-600">{order.notes}</p>
+                    </div>
+                  </>
                 )}
               </div>
-
-              {order.notes && (
-                <div>
-                  <h3 className="mb-2 text-lg font-medium">Order Notes</h3>
-                  <div className="rounded-md border p-4">
-                    <p>{order.notes}</p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center text-sm text-gray-500">
-                <Clock className="mr-1 h-4 w-4" />
-                {order.status === "completed"
-                  ? "Your order has been completed"
-                  : order.status === "cancelled"
-                    ? "This order has been cancelled"
-                    : "We're working on your order"}
-              </div>
-              <Button variant="outline" onClick={() => window.print()}>
-                Print Receipt
-              </Button>
-            </CardFooter>
-          </Card>
-        ) : null}
+            )}
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <p className="text-sm text-gray-500">Need help? Contact us at support@chinaexpress.com</p>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   )

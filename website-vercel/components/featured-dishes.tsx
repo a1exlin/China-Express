@@ -2,25 +2,15 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { ShoppingCart } from "@/components/icons"
+import { ShoppingCart } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { useCart, type CartItem } from "@/contexts/cart-context"
+import { useCart } from "@/contexts/cart-context"
 
-interface Dish {
-  id: number
-  name: string
-  description: string
-  price: number
-  image: string
-  _id?: string | number // Adding _id for compatibility with cart items
-}
-
-const featuredDishes: Dish[] = [
+const featuredDishes = [
   {
     id: 1,
-    _id: 1, // Adding _id for cart compatibility
     name: "General Tso's Chicken",
     description: "Crispy chicken with a sweet and spicy sauce, served with broccoli and rice.",
     price: 14.99,
@@ -28,7 +18,6 @@ const featuredDishes: Dish[] = [
   },
   {
     id: 2,
-    _id: 2,
     name: "Beef with Broccoli",
     description: "Tender beef slices stir-fried with fresh broccoli in a savory brown sauce.",
     price: 15.99,
@@ -36,7 +25,6 @@ const featuredDishes: Dish[] = [
   },
   {
     id: 3,
-    _id: 3,
     name: "Shrimp Lo Mein",
     description: "Stir-fried noodles with shrimp, vegetables, and our special sauce.",
     price: 13.99,
@@ -44,7 +32,6 @@ const featuredDishes: Dish[] = [
   },
   {
     id: 4,
-    _id: 4,
     name: "Vegetable Fried Rice",
     description: "Wok-fried rice with mixed vegetables, eggs, and our house seasoning.",
     price: 10.99,
@@ -54,19 +41,6 @@ const featuredDishes: Dish[] = [
 
 export default function FeaturedDishes() {
   const { addToCart } = useCart()
-
-  // Helper function to convert Dish to CartItem
-  const handleAddToCart = (dish: Dish) => {
-    const cartItem: CartItem = {
-      _id: dish._id || dish.id,
-      name: dish.name,
-      price: dish.price,
-      quantity: 1,
-      image: dish.image,
-      description: dish.description,
-    }
-    addToCart(cartItem)
-  }
 
   return (
     <section className="container mx-auto py-16 px-4">
@@ -95,7 +69,7 @@ export default function FeaturedDishes() {
               <p className="text-lg font-bold text-secondary">${dish.price.toFixed(2)}</p>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-              <Button className="w-full bg-secondary hover:bg-secondary/90" onClick={() => handleAddToCart(dish)}>
+              <Button className="w-full bg-secondary hover:bg-secondary/90" onClick={() => addToCart(dish)}>
                 <ShoppingCart className="mr-2 h-4 w-4" />
                 Add to Cart
               </Button>

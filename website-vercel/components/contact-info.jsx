@@ -1,6 +1,6 @@
 "use client"
 
-import { MapPin, Phone } from "@/components/icons"
+import { MapPin, Phone } from "lucide-react"
 import { useSettings } from "@/contexts/settings-context"
 
 export default function ContactInfo() {
