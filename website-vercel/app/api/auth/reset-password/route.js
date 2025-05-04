@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import User from "@/lib/models/user"
 import nodemailer from "nodemailer"
 
@@ -11,8 +10,6 @@ export async function POST(request) {
     if (!email) {
       return NextResponse.json({ error: "Please provide an email" }, { status: 400 })
     }
-
-    await dbConnect()
 
     // Find user by email
     const user = await User.findOne({ email })

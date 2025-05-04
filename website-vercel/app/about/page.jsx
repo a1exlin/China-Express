@@ -9,7 +9,6 @@ export default function AboutPage() {
     phoneNumber: "(555) 123-4567",
     address: "123 Main Street, Anytown",
     openingHours: "Mon-Sun: 11:00 AM - 10:00 PM",
-    enableDelivery: true,
   })
   const [loading, setLoading] = useState(true)
 

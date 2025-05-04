@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import Order from "@/lib/models/order"
 import { verify } from "jsonwebtoken"
 import { cookies } from "next/headers"
@@ -18,37 +17,22 @@ function generateOrderNumber() {
 export async function POST(request) {
   try {
     const body = await request.json()
-    await dbConnect()
-
-    // Check if delivery is enabled when order type is delivery
-    if (body.orderType === "delivery") {
-      // Get settings
-      const settings = await Settings.findOne({})
-      if (settings && !settings.enableDelivery) {
-        return NextResponse.json({ error: "Delivery is currently not available" }, { status: 400 })
-      }
-    }
 
     // Generate a unique order number
     const orderNumber = generateOrderNumber()
 
     // Create the order with payment information if available
-    const order = new Order({
+    const orderData = {
       ...body,
       orderNumber,
       status: "pending",
       paymentIntentId: body.paymentIntentId || null,
       paymentStatus: body.paymentStatus || "pending",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }
 
-    // Calculate estimated delivery time (30-45 minutes from now)
-    const estimatedDeliveryTime = new Date()
-    estimatedDeliveryTime.setMinutes(estimatedDeliveryTime.getMinutes() + 30 + Math.floor(Math.random() * 15))
-    order.estimatedDeliveryTime = estimatedDeliveryTime
-
-    await order.save()
+    const order = await Order.create(orderData)
 
     return NextResponse.json(order, { status: 201 })
   } catch (error) {
@@ -72,9 +56,6 @@ export async function GET(request) {
       // Verify token
       const decoded = verify(token, process.env.JWT_SECRET || "your-secret-key")
 
-      // Connect to database
-      await dbConnect()
-
       // Get query parameters
       const { searchParams } = new URL(request.url)
       const limit = Number.parseInt(searchParams.get("limit") || "50")
@@ -89,7 +70,11 @@ export async function GET(request) {
 
       // Get orders with pagination
       const skip = (page - 1) * limit
-      const orders = await Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit)
+      const orders = await Order.find({
+        ...query,
+        limit,
+        skip,
+      })
 
       const total = await Order.countDocuments(query)
 

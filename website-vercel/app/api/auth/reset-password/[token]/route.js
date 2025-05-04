@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import User from "@/lib/models/user"
 import crypto from "crypto"
 
@@ -13,18 +12,15 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "Please provide a new password" }, { status: 400 })
     }
 
-    await dbConnect()
-
     // Hash the token from the URL
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
 
     // Find user with the token and check if token is expired
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
-      resetPasswordExpire: { $gt: Date.now() },
     })
 
-    if (!user) {
+    if (!user || user.resetPasswordExpire < Date.now()) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 })
     }
 

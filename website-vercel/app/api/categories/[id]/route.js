@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import Category from "@/lib/models/category"
 
 export async function GET(request, { params }) {
   try {
-    await dbConnect()
     const category = await Category.findById(params.id)
 
     if (!category) {
@@ -20,12 +18,8 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const body = await request.json()
-    await dbConnect()
 
-    const category = await Category.findByIdAndUpdate(params.id, body, {
-      new: true,
-      runValidators: true,
-    })
+    const category = await Category.findByIdAndUpdate(params.id, body)
 
     if (!category) {
       return NextResponse.json({ error: "Category not found" }, { status: 404 })
@@ -39,7 +33,6 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await dbConnect()
     const category = await Category.findByIdAndDelete(params.id)
 
     if (!category) {

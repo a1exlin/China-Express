@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import User from "@/lib/models/user"
 import { verify } from "jsonwebtoken"
 import { cookies } from "next/headers"
@@ -12,8 +11,6 @@ export async function POST(request) {
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Please provide all required fields" }, { status: 400 })
     }
-
-    await dbConnect()
 
     // Check if this is the first user being created
     const userCount = await User.countDocuments()
@@ -50,17 +47,12 @@ export async function POST(request) {
     }
 
     // Create new user
-    const user = new User({
+    const user = await User.create({
       name,
       email,
+      password,
       isFirstAdmin: isFirstUser, // First user is the first admin
     })
-
-    // Set password
-    user.setPassword(password)
-
-    // Save user
-    await user.save()
 
     return NextResponse.json(
       {

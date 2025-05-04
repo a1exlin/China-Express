@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import User from "@/lib/models/user"
 import { verify } from "jsonwebtoken"
 import { cookies } from "next/headers"
@@ -27,12 +26,19 @@ export async function GET() {
       return NextResponse.json({ error: "Only the first admin can view users" }, { status: 403 })
     }
 
-    await dbConnect()
-
     // Get all users (excluding password fields)
-    const users = await User.find({}).select("-hashedPassword -salt -resetPasswordToken -resetPasswordExpire")
+    const users = await User.find()
 
-    return NextResponse.json(users)
+    // Filter out sensitive information
+    const filteredUsers = users.map((user) => ({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isFirstAdmin: user.isFirstAdmin,
+      createdAt: user.createdAt,
+    }))
+
+    return NextResponse.json(filteredUsers)
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

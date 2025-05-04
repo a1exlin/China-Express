@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import Order from "@/lib/models/order"
 import { verify } from "jsonwebtoken"
 import { cookies } from "next/headers"
@@ -7,8 +6,7 @@ import { cookies } from "next/headers"
 // Get a specific order
 export async function GET(request, { params }) {
   try {
-    const { id } = params
-    await dbConnect()
+    const { id } = await params
 
     // Check if it's an order number (starts with ORD-)
     const query = id.startsWith("ORD-") ? { orderNumber: id } : { _id: id }
@@ -29,7 +27,7 @@ export async function GET(request, { params }) {
 // Update an order (admin only)
 export async function PUT(request, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
 
     // Check if user is authenticated as admin
@@ -44,17 +42,10 @@ export async function PUT(request, { params }) {
       // Verify token
       verify(token, process.env.JWT_SECRET || "your-secret-key")
 
-      // Connect to database
-      await dbConnect()
-
       // Find and update the order
       const query = id.startsWith("ORD-") ? { orderNumber: id } : { _id: id }
 
-      const order = await Order.findOneAndUpdate(
-        query,
-        { ...body, updatedAt: new Date() },
-        { new: true, runValidators: true },
-      )
+      const order = await Order.findOneAndUpdate(query, { ...body, updatedAt: Date.now() })
 
       if (!order) {
         return NextResponse.json({ error: "Order not found" }, { status: 404 })

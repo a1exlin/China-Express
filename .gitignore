@@ -4,3 +4,4 @@ build/
 ios/Pods/
 android/.gradle/
 mobileVercel/vendor/
+website-vercel/lib/serviceAccountKey.json

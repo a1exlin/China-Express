@@ -44,14 +44,12 @@ export default function AdminPage() {
   const [users, setUsers] = useState([])
   const [settings, setSettings] = useState({
     taxPercentage: 8.25,
-    deliveryFee: 3.99,
     serviceCharge: 0,
     minimumOrderAmount: 15,
     restaurantName: "China Express",
     phoneNumber: "(555) 123-4567",
     address: "123 Main Street, Anytown",
     openingHours: "Mon-Sun: 11:00 AM - 10:00 PM",
-    enableDelivery: true,
     mapCoordinates: {
       lat: 40.712776,
       lng: -74.005974,
@@ -157,10 +155,6 @@ export default function AdminPage() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }))
-  }
-
-  const handleDeliveryToggle = (checked) => {
-    setSettings((prev) => ({ ...prev, enableDelivery: checked }))
   }
 
   const handleUserChange = (e) => {
@@ -350,9 +344,7 @@ export default function AdminPage() {
       const settingsToSave = {
         ...settings,
         taxPercentage: Number.parseFloat(settings.taxPercentage),
-        deliveryFee: Number.parseFloat(settings.deliveryFee),
         serviceCharge: Number.parseFloat(settings.serviceCharge),
-        minimumOrderAmount: Number.parseFloat(settings.minimumOrderAmount),
       }
 
       const res = await fetch("/api/settings", {
@@ -924,20 +916,6 @@ export default function AdminPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="deliveryFee">Delivery Fee ($)</Label>
-                    <Input
-                      id="deliveryFee"
-                      name="deliveryFee"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={settings.deliveryFee}
-                      onChange={handleSettingsChange}
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
                     <Label htmlFor="serviceCharge">Service Charge ($)</Label>
                     <Input
                       id="serviceCharge"
@@ -949,26 +927,6 @@ export default function AdminPage() {
                       onChange={handleSettingsChange}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="minimumOrderAmount">Minimum Order Amount ($)</Label>
-                    <Input
-                      id="minimumOrderAmount"
-                      name="minimumOrderAmount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={settings.minimumOrderAmount}
-                      onChange={handleSettingsChange}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="enableDelivery"
-                    checked={settings.enableDelivery}
-                    onCheckedChange={handleDeliveryToggle}
-                  />
-                  <Label htmlFor="enableDelivery">Enable Delivery</Label>
                 </div>
                 <Button type="button" className="bg-secondary hover:bg-secondary/90" onClick={saveSettings}>
                   <Save className="mr-2 h-4 w-4" />

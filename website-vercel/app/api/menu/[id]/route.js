@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import MenuItem from "@/lib/models/menu-item"
 
 export async function GET(request, { params }) {
   try {
-    await dbConnect()
     const menuItem = await MenuItem.findById(params.id)
 
     if (!menuItem) {
@@ -20,12 +18,8 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const body = await request.json()
-    await dbConnect()
 
-    const menuItem = await MenuItem.findByIdAndUpdate(params.id, body, {
-      new: true,
-      runValidators: true,
-    })
+    const menuItem = await MenuItem.findByIdAndUpdate(params.id, body)
 
     if (!menuItem) {
       return NextResponse.json({ error: "Menu item not found" }, { status: 404 })
@@ -39,7 +33,6 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    await dbConnect()
     const menuItem = await MenuItem.findByIdAndDelete(params.id)
 
     if (!menuItem) {

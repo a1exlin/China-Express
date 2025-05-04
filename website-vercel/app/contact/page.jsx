@@ -128,30 +128,6 @@ export default function ContactPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Delivery Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-gray-600">
-                We offer delivery within a 5-mile radius of our restaurant. Delivery times may vary based on distance
-                and order volume.
-              </p>
-              <div>
-                <h3 className="font-medium">Delivery Hours</h3>
-                <p className="text-sm text-gray-600">Monday - Sunday: 11:30 AM - 9:30 PM</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Delivery Fee</h3>
-                <p className="text-sm text-gray-600">$3.99 for all deliveries</p>
-              </div>
-              <div>
-                <h3 className="font-medium">Minimum Order</h3>
-                <p className="text-sm text-gray-600">$15.00 for delivery orders</p>
-              </div>
-            </CardContent>
-          </Card>
-
           <div className="rounded-lg overflow-hidden h-[300px] relative">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2219901290355!2d-74.00369368400567!3d40.71312937933185!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDA0JzI3LjIiTiA3NMKwMDAnMTIuOSJX!5e0!3m2!1sen!2sus!4v1620160882595!5m2!1sen!2sus"

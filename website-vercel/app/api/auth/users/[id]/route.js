@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import User from "@/lib/models/user"
 import { verify } from "jsonwebtoken"
 import { cookies } from "next/headers"
 
 export async function DELETE(request, { params }) {
   try {
-    const { id } = await params
+    const { id } = params
 
     // Get token from cookies
     const cookieStore = await cookies()
@@ -28,8 +27,6 @@ export async function DELETE(request, { params }) {
     if (!decoded.isFirstAdmin) {
       return NextResponse.json({ error: "Only the first admin can delete users" }, { status: 403 })
     }
-
-    await dbConnect()
 
     // Find user to delete
     const userToDelete = await User.findById(id)

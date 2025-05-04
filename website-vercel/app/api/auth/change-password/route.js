@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import User from "@/lib/models/user"
 import { verify } from "jsonwebtoken"
 import { cookies } from "next/headers"
@@ -28,8 +27,6 @@ export async function POST(request) {
     } catch (error) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 })
     }
-
-    await dbConnect()
 
     // Find user by ID
     const user = await User.findById(decoded.id)

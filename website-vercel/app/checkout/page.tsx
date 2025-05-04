@@ -45,8 +45,6 @@ interface FormData {
 
 interface Settings {
   taxPercentage: number
-  deliveryFee: number
-  enableDelivery: boolean
   restaurantName: string
   address: string
   phoneNumber: string
@@ -54,7 +52,6 @@ interface Settings {
 
 export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("credit-card")
-  const [orderType, setOrderType] = useState("delivery")
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderedItems, setOrderedItems] = useState<CartItem[]>([])
   const [orderNumber, setOrderNumber] = useState("")
@@ -90,28 +87,22 @@ export default function CheckoutPage() {
   useEffect(() => {
     // Load saved form data from session storage
     const savedFormData = sessionStorage.getItem("checkoutFormData")
-    const savedOrderType = sessionStorage.getItem("checkoutOrderType")
 
     if (savedFormData) {
       setFormData(JSON.parse(savedFormData))
     }
 
-    if (savedOrderType) {
-      setOrderType(savedOrderType)
-    }
   }, [])
 
   // Save form data when it changes
   useEffect(() => {
     sessionStorage.setItem("checkoutFormData", JSON.stringify(formData))
-    sessionStorage.setItem("checkoutOrderType", orderType)
-  }, [formData, orderType])
+  }, [formData])
 
   // Calculate order summary
   const subtotal = getCartTotal()
   const tax = subtotal * (settings.taxPercentage / 100)
-  const deliveryFee = orderType === "delivery" ? settings.deliveryFee : 0
-  const total = subtotal + tax + deliveryFee
+  const total = subtotal + tax
 
   // Check for payment status on page load
   useEffect(() => {
@@ -173,7 +164,6 @@ export default function CheckoutPage() {
             // Clean up session storage
             sessionStorage.removeItem("pendingOrderData")
             sessionStorage.removeItem("checkoutFormData")
-            sessionStorage.removeItem("checkoutOrderType")
 
             toast.success("Payment successful! Order placed.", {
               description: "Your order has been received and is being prepared.",
@@ -212,12 +202,6 @@ export default function CheckoutPage() {
       }
     }
   }, [cartItems, orderPlaced, router, isCheckingPayment])
-
-  useEffect(() => {
-    if (!settings.enableDelivery) {
-      setOrderType("pickup")
-    }
-  }, [settings.enableDelivery])
 
   // Fix the handleInputChange function to use proper TypeScript typing
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -261,11 +245,6 @@ export default function CheckoutPage() {
       return false
     }
 
-    if (orderType === "delivery" && (!formData.address.street || !formData.address.city || !formData.address.zipCode)) {
-      toast.error("Please provide a complete delivery address")
-      return false
-    }
-
     return true
   }
 
@@ -297,14 +276,11 @@ export default function CheckoutPage() {
         customerName: formData.customerName,
         customerEmail: formData.customerEmail,
         customerPhone: formData.customerPhone,
-        address: orderType === "delivery" ? formData.address : null,
         items,
         subtotal,
         tax,
-        deliveryFee,
         total,
         paymentMethod,
-        orderType,
         notes: formData.notes,
       }
 
@@ -332,7 +308,6 @@ export default function CheckoutPage() {
         // Clean up session storage
         sessionStorage.removeItem("pendingOrderData")
         sessionStorage.removeItem("checkoutFormData")
-        sessionStorage.removeItem("checkoutOrderType")
 
         toast.success("Order placed successfully!", {
           description: "Your order has been received and is being prepared.",
@@ -342,7 +317,6 @@ export default function CheckoutPage() {
         // The actual order will be created after payment confirmation
         const paymentMetadata = {
           customerEmail: formData.customerEmail,
-          orderType,
         }
 
         // Create a payment intent
@@ -416,7 +390,6 @@ export default function CheckoutPage() {
       // Clean up session storage
       sessionStorage.removeItem("pendingOrderData")
       sessionStorage.removeItem("checkoutFormData")
-      sessionStorage.removeItem("checkoutOrderType")
 
       toast.success("Payment successful! Order placed.", {
         description: "Your order has been received and is being prepared.",
@@ -467,7 +440,7 @@ export default function CheckoutPage() {
           <CardContent>
             <div className="mb-4 rounded-lg bg-gray-50 p-4">
               <p className="font-medium">Order #{orderNumber}</p>
-              <p className="text-sm text-gray-500">Estimated delivery: 30-45 minutes</p>
+              <p className="text-sm text-gray-500">Estimated pickup: 30-45 minutes</p>
             </div>
             <Separator className="my-4" />
             {orderedItems.length > 0 && (
@@ -529,176 +502,8 @@ export default function CheckoutPage() {
       <h1 className="mb-8 text-center text-3xl font-bold">Checkout</h1>
 
       <div className="grid gap-8 md:grid-cols-3">
-        <div className="md:col-span-2">
-          {/* Customer Information Section */}
-          {settings.enableDelivery ? (
-            <Tabs defaultValue="delivery" value={orderType} onValueChange={setOrderType} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="delivery">Delivery</TabsTrigger>
-                <TabsTrigger value="pickup">Pickup</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="delivery" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5" />
-                      Delivery Address
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="customerName">Full Name</Label>
-                        <Input
-                          id="customerName"
-                          name="customerName"
-                          value={formData.customerName}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="customerPhone">Phone Number</Label>
-                        <Input
-                          id="customerPhone"
-                          name="customerPhone"
-                          type="tel"
-                          value={formData.customerPhone}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="customerEmail">Email</Label>
-                      <Input
-                        id="customerEmail"
-                        name="customerEmail"
-                        type="email"
-                        value={formData.customerEmail}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="address.street">Street Address</Label>
-                      <Input
-                        id="address.street"
-                        name="address.street"
-                        value={formData.address.street}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="address.city">City</Label>
-                        <Input
-                          id="address.city"
-                          name="address.city"
-                          value={formData.address.city}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="address.state">State</Label>
-                        <Input
-                          id="address.state"
-                          name="address.state"
-                          value={formData.address.state}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="address.zipCode">ZIP Code</Label>
-                        <Input
-                          id="address.zipCode"
-                          name="address.zipCode"
-                          value={formData.address.zipCode}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="notes">Delivery Instructions (Optional)</Label>
-                      <Textarea
-                        id="notes"
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleInputChange}
-                        placeholder="Apartment number, gate code, etc."
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="pickup" className="mt-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Pickup Information</CardTitle>
-                    <CardDescription>Your order will be available for pickup at our restaurant.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="rounded-lg bg-gray-50 p-4">
-                      <h3 className="mb-2 font-medium">{settings.restaurantName}</h3>
-                      <p className="text-sm text-gray-600">{settings.address}</p>
-                      <p className="text-sm text-gray-600">Phone: {settings.phoneNumber}</p>
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="customerName">Full Name</Label>
-                        <Input
-                          id="customerName"
-                          name="customerName"
-                          value={formData.customerName}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="customerPhone">Phone Number</Label>
-                        <Input
-                          id="customerPhone"
-                          name="customerPhone"
-                          type="tel"
-                          value={formData.customerPhone}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="customerEmail">Email</Label>
-                      <Input
-                        id="customerEmail"
-                        name="customerEmail"
-                        type="email"
-                        value={formData.customerEmail}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="notes">Special Instructions (Optional)</Label>
-                      <Textarea
-                        id="notes"
-                        name="notes"
-                        value={formData.notes}
-                        onChange={handleInputChange}
-                        placeholder="Any special instructions for your order"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          ) : (
-            // When delivery is disabled, only show pickup option
+        <div className="md:col-span-2">         
+ 
             <Card className="mt-6">
               <CardHeader>
                 <CardTitle>Pickup Information</CardTitle>
@@ -756,7 +561,6 @@ export default function CheckoutPage() {
                 </div>
               </CardContent>
             </Card>
-          )}
 
           {/* Payment Method Section */}
           <Card className="mt-8">
@@ -787,7 +591,7 @@ export default function CheckoutPage() {
                   <Label htmlFor="cash" className="flex-1 cursor-pointer">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4" />
-                      Cash on {orderType === "delivery" ? "Delivery" : "Pickup"}
+                      Cash on Pickup
                     </div>
                   </Label>
                 </div>
@@ -852,12 +656,6 @@ export default function CheckoutPage() {
                     <span>Tax ({settings.taxPercentage}%)</span>
                     <span>${tax.toFixed(2)}</span>
                   </div>
-                  {orderType === "delivery" && (
-                    <div className="flex justify-between">
-                      <span>Delivery Fee</span>
-                      <span>${deliveryFee.toFixed(2)}</span>
-                    </div>
-                  )}
                   <Separator />
                   <div className="flex justify-between font-bold">
                     <span>Total</span>

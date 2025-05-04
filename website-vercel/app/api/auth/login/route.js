@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongodb"
 import User from "@/lib/models/user"
 import { cookies } from "next/headers"
 import { sign } from "jsonwebtoken"
@@ -12,8 +11,6 @@ export async function POST(request) {
     if (!email || !password) {
       return NextResponse.json({ error: "Please provide email and password" }, { status: 400 })
     }
-
-    await dbConnect()
 
     // Find user by email
     const user = await User.findOne({ email })

@@ -184,18 +184,6 @@ export default function OrdersPage() {
             Ready
           </Badge>
         )
-      case "out-for-delivery":
-        return (
-          <Badge variant="outline" className="bg-purple-100 text-purple-800">
-            Out for Delivery
-          </Badge>
-        )
-      case "delivered":
-        return (
-          <Badge variant="outline" className="bg-green-100 text-green-800">
-            Delivered
-          </Badge>
-        )
       case "cancelled":
         return (
           <Badge variant="outline" className="bg-red-100 text-red-800">
@@ -217,10 +205,6 @@ export default function OrdersPage() {
         return <ChefHat className="h-5 w-5 text-yellow-500" />
       case "ready":
         return <Package className="h-5 w-5 text-green-500" />
-      case "out-for-delivery":
-        return <Truck className="h-5 w-5 text-purple-500" />
-      case "delivered":
-        return <CheckCircle2 className="h-5 w-5 text-green-600" />
       case "cancelled":
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
@@ -238,10 +222,6 @@ export default function OrdersPage() {
         return "Preparing"
       case "ready":
         return "Ready"
-      case "out-for-delivery":
-        return "Out for Delivery"
-      case "delivered":
-        return "Completed"
       case "cancelled":
         return "Cancelled"
       default:
@@ -262,24 +242,13 @@ export default function OrdersPage() {
   }
 
   const getNextStatus = (currentStatus, orderType) => {
-    if (orderType === "pickup") {
-      const pickupStatusFlow = {
-        pending: "confirmed",
-        confirmed: "preparing",
-        preparing: "ready",
-        ready: "delivered", // For pickup, we go directly from ready to delivered (picked up)
-      }
-      return pickupStatusFlow[currentStatus] || null
-    } else {
-      const deliveryStatusFlow = {
-        pending: "confirmed",
-        confirmed: "preparing",
-        preparing: "ready",
-        ready: "out-for-delivery",
-        "out-for-delivery": "delivered",
-      }
-      return deliveryStatusFlow[currentStatus] || null
+    const pickupStatusFlow = {
+      pending: "confirmed",
+      confirmed: "preparing",
+      preparing: "ready",
+      ready: "picked up",
     }
+    return pickupStatusFlow[currentStatus] || null
   }
 
   if (!user) {
@@ -342,7 +311,6 @@ export default function OrdersPage() {
                   <SelectItem value="confirmed">Confirmed</SelectItem>
                   <SelectItem value="preparing">Preparing</SelectItem>
                   <SelectItem value="ready">Ready</SelectItem>
-                  <SelectItem value="out-for-delivery">Out for Delivery</SelectItem>
                   <SelectItem value="delivered">Delivered</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
@@ -456,18 +424,6 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                {selectedOrder.orderType === "delivery" && selectedOrder.address && (
-                  <div>
-                    <h3 className="mb-2 font-medium">Delivery Address</h3>
-                    <div className="rounded-lg bg-gray-50 p-4">
-                      <p>
-                        {selectedOrder.address.street}, {selectedOrder.address.city}, {selectedOrder.address.state}{" "}
-                        {selectedOrder.address.zipCode}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
                 <div>
                   <h3 className="mb-2 font-medium">Order Details</h3>
                   <div className="rounded-lg bg-gray-50 p-4">
@@ -498,12 +454,6 @@ export default function OrdersPage() {
                         <span>Tax</span>
                         <span>${selectedOrder.tax.toFixed(2)}</span>
                       </div>
-                      {selectedOrder.orderType === "delivery" && (
-                        <div className="flex justify-between">
-                          <span>Delivery Fee</span>
-                          <span>${selectedOrder.deliveryFee.toFixed(2)}</span>
-                        </div>
-                      )}
                       <Separator className="my-2" />
                       <div className="flex justify-between font-bold">
                         <span>Total</span>
@@ -550,13 +500,13 @@ export default function OrdersPage() {
                   <Button variant="outline" onClick={() => setIsViewingOrder(false)}>
                     Close
                   </Button>
-                  {getNextStatus(selectedOrder.status, selectedOrder.orderType) && (
+                  {getNextStatus(selectedOrder.status) && (
                     <Button
                       className="bg-secondary hover:bg-secondary/90"
                       onClick={() =>
                         updateOrderStatus(
                           selectedOrder._id,
-                          getNextStatus(selectedOrder.status, selectedOrder.orderType),
+                          getNextStatus(selectedOrder.status),
                         )
                       }
                       disabled={isUpdatingStatus}
@@ -567,7 +517,7 @@ export default function OrdersPage() {
                           Updating...
                         </>
                       ) : (
-                        `Mark as ${getStatusText(getNextStatus(selectedOrder.status, selectedOrder.orderType))}`
+                        `Mark as ${getStatusText(getNextStatus(selectedOrder.status))}`
                       )}
                     </Button>
                   )}
