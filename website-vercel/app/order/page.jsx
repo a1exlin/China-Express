@@ -3,14 +3,16 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Minus, Plus, ShoppingCart, Trash2, Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useCart } from "@/contexts/cart-context"
+import { ShoppingCart, Loader2, Minus, Plus, Trash2 } from "@/components/icons"
 
 export default function OrderPage() {
+  const router = useRouter()
   const { cartItems, isLoading, updateQuantity, removeFromCart, clearCart, getCartTotal } = useCart()
   const [settings, setSettings] = useState({
     taxPercentage: 8.25,
@@ -36,7 +38,8 @@ export default function OrderPage() {
     fetchSettings()
   }, [])
 
-  const subtotal = getCartTotal()
+  // Safely calculate values with null checks
+  const subtotal = getCartTotal ? getCartTotal() : 0
   const tax = subtotal * (settings.taxPercentage / 100)
   const deliveryFee = settings.enableDelivery && orderType === "delivery" ? settings.deliveryFee : 0
   const total = subtotal + tax + deliveryFee
@@ -52,7 +55,7 @@ export default function OrderPage() {
     )
   }
 
-  if (cartItems.length === 0) {
+  if (!cartItems || cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-md text-center">

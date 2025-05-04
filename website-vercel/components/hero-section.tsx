@@ -1,6 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight } from "@/components/icons"
 
 import { Button } from "@/components/ui/button"
 
@@ -14,7 +14,6 @@ type Settings = {
 type Props = {
   settings: Settings
 }
-
 
 export default function HeroSection({ settings }: Props) {
   return (

@@ -14,7 +14,7 @@ function generateOrderNumber() {
   return `ORD-${timestamp}-${random}`
 }
 
-// Create a new order
+// Update the POST function to include payment information
 export async function POST(request) {
   try {
     const body = await request.json()
@@ -32,11 +32,13 @@ export async function POST(request) {
     // Generate a unique order number
     const orderNumber = generateOrderNumber()
 
-    // Create the order
+    // Create the order with payment information if available
     const order = new Order({
       ...body,
       orderNumber,
       status: "pending",
+      paymentIntentId: body.paymentIntentId || null,
+      paymentStatus: body.paymentStatus || "pending",
       createdAt: new Date(),
       updatedAt: new Date(),
     })

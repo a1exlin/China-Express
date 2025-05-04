@@ -1,12 +1,38 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { toast } from "sonner"
 
-const CartContext = createContext(undefined)
+// Define types for cart items and context
+export interface CartItem {
+  _id: string | number
+  name: string
+  price: number
+  quantity: number
+  image?: string
+  [key: string]: any // For any additional properties
+}
 
-export function CartProvider({ children }) {
-  const [cartItems, setCartItems] = useState([])
+export interface CartContextType {
+  cartItems: CartItem[]
+  isLoading: boolean
+  addToCart: (item: CartItem) => void
+  removeFromCart: (id: string | number) => void
+  updateQuantity: (id: string | number, quantity: number) => void
+  clearCart: () => void
+  getCartTotal: () => number
+  getCartCount: () => number
+}
+
+// Create the context with a default undefined value, but with type information
+const CartContext = createContext<CartContextType | undefined>(undefined)
+
+interface CartProviderProps {
+  children: ReactNode
+}
+
+export function CartProvider({ children }: CartProviderProps) {
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   // Load cart from localStorage on initial render
@@ -30,7 +56,7 @@ export function CartProvider({ children }) {
     }
   }, [cartItems, isLoading])
 
-  const addToCart = (item) => {
+  const addToCart = (item: CartItem) => {
     setCartItems((prevItems) => {
       // Check if item already exists in cart
       const existingItemIndex = prevItems.findIndex((cartItem) => cartItem._id === item._id)
@@ -54,7 +80,7 @@ export function CartProvider({ children }) {
     })
   }
 
-  const removeFromCart = (id) => {
+  const removeFromCart = (id: string | number) => {
     setCartItems((prevItems) => prevItems.filter((item) => item._id !== id))
 
     toast.success("Item removed", {
@@ -62,7 +88,7 @@ export function CartProvider({ children }) {
     })
   }
 
-  const updateQuantity = (id, quantity) => {
+  const updateQuantity = (id: string | number, quantity: number) => {
     if (quantity < 1) return
 
     setCartItems((prevItems) => prevItems.map((item) => (item._id === id ? { ...item, quantity } : item)))
@@ -101,7 +127,7 @@ export function CartProvider({ children }) {
   )
 }
 
-export function useCart() {
+export function useCart(): CartContextType {
   const context = useContext(CartContext)
   if (context === undefined) {
     throw new Error("useCart must be used within a CartProvider")

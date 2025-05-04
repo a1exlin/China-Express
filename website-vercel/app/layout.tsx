@@ -1,6 +1,6 @@
+import type React from "react"
 import { Inter } from "next/font/google"
 import Link from "next/link"
-import { Home, Menu, ShoppingCart, User, MapPin } from "lucide-react"
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/auth-context"
 import { SettingsProvider } from "@/contexts/settings-context"
 import CartIcon from "@/components/cart-icon"
 import ContactInfo from "@/components/contact-info"
+import { Home, Menu, ShoppingCart, User, MapPin } from "@/components/icons"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -18,10 +19,14 @@ export const metadata = {
   title: "China Express | Authentic Chinese Restaurant",
   description:
     "Experience authentic Chinese cuisine with our carefully crafted dishes, available for dine-in, takeout, or delivery.",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
-export default function RootLayout({ children }) {
+interface RootLayoutProps {
+  children: React.ReactNode
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>

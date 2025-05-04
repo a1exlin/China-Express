@@ -22,9 +22,9 @@ export async function POST(request) {
     // If not the first user, check if the request is from the first admin
     if (!isFirstUser) {
       // Get token from cookies
-      const cookieStore = await cookies();
-      const token = cookieStore.get("auth_token")?.value;
-      
+      const cookieStore = await cookies()
+      const token = cookieStore.get("auth_token")?.value
+
       if (!token) {
         return NextResponse.json({ error: "Not authorized to create users" }, { status: 401 })
       }

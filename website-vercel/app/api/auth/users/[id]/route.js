@@ -9,8 +9,8 @@ export async function DELETE(request, { params }) {
     const { id } = await params
 
     // Get token from cookies
-    const cookieStore = await cookies();
-    const token = cookieStore.get("auth_token")?.value;
+    const cookieStore = await cookies()
+    const token = cookieStore.get("auth_token")?.value
 
     if (!token) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })

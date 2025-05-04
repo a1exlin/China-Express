@@ -68,6 +68,15 @@ const orderSchema = new mongoose.Schema({
     enum: ["credit-card", "paypal", "cash"],
     default: "credit-card",
   },
+  paymentIntentId: {
+    type: String,
+    default: null,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["pending", "paid", "failed", "refunded"],
+    default: "pending",
+  },
   orderType: {
     type: String,
     enum: ["delivery", "pickup"],
