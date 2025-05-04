@@ -1,104 +1,59 @@
-import { StyleSheet, View, Text } from "react-native"
-import { Ionicons } from "@expo/vector-icons"
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
-type AlertVariant = "default" | "success" | "warning" | "error" | "info"
+import { cn } from "@/lib/utils"
 
-interface AlertProps {
-  title?: string
-  description: string
-  variant?: AlertVariant
-  style?: any
-}
-
-export function Alert({ title, description, variant = "default", style }: AlertProps) {
-  const getIconName = () => {
-    switch (variant) {
-      case "success":
-        return "checkmark-circle"
-      case "warning":
-        return "warning"
-      case "error":
-        return "alert-circle"
-      case "info":
-        return "information-circle"
-      default:
-        return "information-circle"
-    }
+const alertVariants = cva(
+  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  {
+    variants: {
+      variant: {
+        default: "bg-background text-foreground",
+        destructive:
+          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
   }
+)
 
-  const getIconColor = () => {
-    switch (variant) {
-      case "success":
-        return "#10b981"
-      case "warning":
-        return "#f59e0b"
-      case "error":
-        return "#ef4444"
-      case "info":
-        return "#3b82f6"
-      default:
-        return "#6b7280"
-    }
-  }
+const Alert = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
+>(({ className, variant, ...props }, ref) => (
+  <div
+    ref={ref}
+    role="alert"
+    className={cn(alertVariants({ variant }), className)}
+    {...props}
+  />
+))
+Alert.displayName = "Alert"
 
-  return (
-    <View style={[styles.alert, styles[`alert_${variant}`], style]}>
-      <View style={styles.iconContainer}>
-        <Ionicons name={getIconName()} size={24} color={getIconColor()} />
-      </View>
-      <View style={styles.content}>
-        {title && <Text style={styles.title}>{title}</Text>}
-        <Text style={styles.description}>{description}</Text>
-      </View>
-    </View>
-  )
-}
+const AlertTitle = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h5
+    ref={ref}
+    className={cn("mb-1 font-medium leading-none tracking-tight", className)}
+    {...props}
+  />
+))
+AlertTitle.displayName = "AlertTitle"
 
-const styles = StyleSheet.create({
-  alert: {
-    flexDirection: "row",
-    padding: 16,
-    borderRadius: 8,
-    marginVertical: 8,
-  },
-  alert_default: {
-    backgroundColor: "#f9fafb",
-    borderLeftWidth: 4,
-    borderLeftColor: "#6b7280",
-  },
-  alert_success: {
-    backgroundColor: "#ecfdf5",
-    borderLeftWidth: 4,
-    borderLeftColor: "#10b981",
-  },
-  alert_warning: {
-    backgroundColor: "#fffbeb",
-    borderLeftWidth: 4,
-    borderLeftColor: "#f59e0b",
-  },
-  alert_error: {
-    backgroundColor: "#fef2f2",
-    borderLeftWidth: 4,
-    borderLeftColor: "#ef4444",
-  },
-  alert_info: {
-    backgroundColor: "#eff6ff",
-    borderLeftWidth: 4,
-    borderLeftColor: "#3b82f6",
-  },
-  iconContainer: {
-    marginRight: 12,
-  },
-  content: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  description: {
-    fontSize: 14,
-    color: "#4b5563",
-  },
-})
+const AlertDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm [&_p]:leading-relaxed", className)}
+    {...props}
+  />
+))
+AlertDescription.displayName = "AlertDescription"
+
+export { Alert, AlertTitle, AlertDescription }
