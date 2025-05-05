@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
-import { ArrowRight, BarChart4, Settings, ShoppingCart } from "lucide-react"
+import { ArrowRight, BarChart4, Settings, ShoppingCart, Database, ClipboardList } from "lucide-react"
 
 export default function Home() {
   return (
@@ -23,6 +23,23 @@ export default function Home() {
               <Link href="/pos" className="w-full">
                 <Button className="w-full">
                   Open POS <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-primary/10 p-3 rounded-full mb-4">
+                <ClipboardList className="h-8 w-8 text-primary" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">Orders</h2>
+              <p className="text-muted-foreground mb-4">View and manage all orders from different sources</p>
+              <Link href="/orders" className="w-full">
+                <Button className="w-full">
+                  View Orders <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -57,6 +74,23 @@ export default function Home() {
               <Link href="/reports" className="w-full">
                 <Button className="w-full">
                   View Reports <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-primary/10 p-3 rounded-full mb-4">
+                <Database className="h-8 w-8 text-primary" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">Firebase Diagnostics</h2>
+              <p className="text-muted-foreground mb-4">Troubleshoot Firebase connection issues</p>
+              <Link href="/diagnostics" className="w-full">
+                <Button className="w-full">
+                  Diagnostics <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
